@@ -1,7 +1,7 @@
-
+import SignUpForm from "@/app/ui/signup/SignupForm";
 
 export default function SignUpPage() {
   return (
-    <p>Signup page</p>
+    <SignUpForm />
   );
 }
