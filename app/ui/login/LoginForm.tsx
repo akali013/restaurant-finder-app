@@ -16,10 +16,14 @@ export default function LoginForm() {
         GoodEats
       </h1>
       <input
+        id="email"
+        name="email"
         className={`mb-20 w-2xl`}
         placeholder="Email"
       />
       <input
+        id="password"
+        name="password"
         className={`mb-20 w-2xl`}
         placeholder="Password"
         type="password"

@@ -23,21 +23,22 @@ async function getUserFromEmail(email: string): Promise<User | undefined> {
 // Export auth, signIn, and signOut so bcryptjs can compare passwords
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  providers: [Credentials({
-    // Sign in logic with email and password
-    async authorize(credentials) {
-      const parsedCredentials = z.object({ email: z.email(), password: z.string().min(8) }).safeParse(credentials);
+  providers: [
+    Credentials({
+      // Sign in logic with email and password
+      async authorize(credentials) {
+        const parsedCredentials = z.object({ email: z.email(), password: z.string().min(8) }).safeParse(credentials);
 
-      if (parsedCredentials.success) {
-        const { email, password } = parsedCredentials.data;
-        const user = await getUserFromEmail(email);
-        if (!user) return null;
-        const passwordsMatch = await bcrypt.compare(password, user.password);
-        if (passwordsMatch) return user;
+        if (parsedCredentials.success) {
+          const { email, password } = parsedCredentials.data;
+          const user = await getUserFromEmail(email);
+          if (!user) return null;
+          const passwordsMatch = await bcrypt.compare(password, user.password);
+          if (passwordsMatch) return user;
+        }
+
+        console.log("Invalid credentials");
+        return null;
       }
-
-      console.log("Invalid credentials");
-      return null;
-    }
-  })],
+    })],
 });
