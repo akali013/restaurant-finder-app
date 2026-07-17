@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
   pages: {
-    signIn: "/"
+    signIn: "/"         // Identify the landing page as the login page
   },
   callbacks: {
     // Guard protected routes by checking if the user is logged in

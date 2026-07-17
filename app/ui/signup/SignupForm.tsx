@@ -6,6 +6,7 @@ import { useActionState } from "react";
 
 
 export default function SignUpForm() {
+  // Form action that triggers the createAccount server action
   const [errorMessage, formAction] = useActionState(createAccount, undefined);
 
   return (

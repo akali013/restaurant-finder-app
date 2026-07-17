@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/map";
+  // Form action that triggers the authenticate server action
   const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
 
   return (
