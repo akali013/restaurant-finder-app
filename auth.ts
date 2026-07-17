@@ -41,4 +41,29 @@ export const { auth, signIn, signOut } = NextAuth({
         return null;
       }
     })],
+  callbacks: {
+    // Save the user's id in the session
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.userId as string;     // Access user id from JWT
+      }
+
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        // Get the user's id from the database
+        const row = await sql<User[]>`
+          SELECT userId FROM Users
+          WHERE email=${user.email!}
+        `;
+
+        // Save that user id into a jwt token to be accessed anywhere in the app from the current session
+        token.userId = row[0].userid;
+      }
+
+
+      return token;
+    }
+  }
 });

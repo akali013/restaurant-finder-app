@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Chip from "@mui/material/Chip";
 import { Slider } from "@mui/material";
+import { OtherFiltersType, PlaceType } from "@/app/lib/data";
+import { getPlaceTypes } from "@/app/lib/actions";
 
 
 interface ChipData {
@@ -12,12 +14,33 @@ interface ChipData {
   selected: boolean;
 };
 
-export default function OtherFilters() {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const [placeChipData, setPlaceChipData] = useState(basePlaceTypeChipData);
+export default function OtherFilters({ onApply }: { onApply: (placeTypes: PlaceType[], otherFilters: OtherFiltersType) => void }) {
+  const dialogRef = useRef<HTMLDialogElement>(null);    // References the dialog so it can be opened and closed with browser methods
+  const [placeChipData, setPlaceChipData] = useState<ChipData[]>([]);
   const [rating, setRating] = useState<number[]>([1, 5]);
   const [openingHours, setOpeningHours] = useState<number[]>([0, 23]);     // Military hours
   const [amenityChipData, setAmenityChipData] = useState(baseAmenityChipData);
+
+  useEffect(() => {
+    let ignore = false;
+    async function retrievePlaceTypes() {
+      const placeTypes = await getPlaceTypes();
+      setPlaceChipData(placeTypes.map((placeType: PlaceType) => {
+        return {
+          key: placeType.typeid,
+          label: placeType.name,
+          selected: false
+        };
+      }));
+    }
+
+    if (!ignore) retrievePlaceTypes();
+    return () => {
+      ignore = true;
+    }
+  }, []);
+
+  // Handles selecting and unselecting chips for the place types and amenities 
 
   function removeSelectedPlaceTypeChip(data: ChipData) {
     setPlaceChipData(
@@ -53,15 +76,16 @@ export default function OtherFilters() {
           height={30}
           className="mr-3"
         />
-        <span className="text-lg">Other filters</span>
+        <span className="text-lg text-nowrap">Other filters</span>
       </button>
+
       <dialog
         ref={dialogRef}
         closedby="any"
         className="absolute w-[90vw] h-[90vh] bg-mauve-200 p-5 left-15 right-15 top-5 bottom-5 backdrop:backdrop-blur-sm"
       >
         <h1 className="text-[64px] font-bold">Other Filters</h1>
-        <button className="absolute top-10 right-10 p-3 rounded-full" onClick={() => { dialogRef.current?.close() }}>
+        <button className="absolute top-10 right-10 p-3 rounded-full" onClick={() => dialogRef.current?.close()}>
           <Image
             src="/icons/close.png"
             alt="Close other filters"
@@ -71,20 +95,20 @@ export default function OtherFilters() {
         </button>
 
         <h2 className="text-[32px]">Restaurant Type</h2>
-        <div className="grid lg:grid-cols-5 sm:grid-cols-2 gap-3">
+        <div className="grid lg:grid-cols-5 sm:grid-cols-2 gap-3 capitalize">
           {
             placeChipData.map((data: ChipData) =>
               data.selected ? (
                 <Chip
                   key={data.key}
-                  label={data.label}
+                  label={formatChipLabel(data.label)}
                   onDelete={() => { removeSelectedPlaceTypeChip(data) }}
                   sx={{ bgcolor: "#7dd3fc", fontSize: "large" }}
                 />
               ) : (
                 <Chip
                   key={data.key}
-                  label={data.label}
+                  label={formatChipLabel(data.label)}
                   onClick={() => { addSelectedPlaceTypeChip(data) }}
                   sx={{ fontSize: "large" }}
                 />
@@ -97,7 +121,7 @@ export default function OtherFilters() {
         <div className="w-[50%] mt-5 ml-5">
           <Slider
             value={rating}
-            onChange={(event: Event, newRating: number[]) => { setRating(newRating) }}
+            onChange={(_, newRating: number[]) => { setRating(newRating) }}
             min={1}
             max={5}
             marks={[{ value: 1, label: "1 Star" }, { value: 2, label: "2 Stars" }, { value: 3, label: "3 Stars" }, { value: 4, label: "4 Stars" }, { value: 5, label: "5 Stars" }]}
@@ -108,7 +132,7 @@ export default function OtherFilters() {
         <div className="w-[75%] mt-5 ml-5">
           <Slider
             value={openingHours}
-            onChange={(event: Event, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
+            onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
             min={0}
             max={23}
             valueLabelDisplay="auto"
@@ -117,7 +141,7 @@ export default function OtherFilters() {
         </div>
 
         <h2 className="text-[32px]">Amenities</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-8 gap-3">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {
             amenityChipData.map((data: ChipData) =>
               data.selected ? (
@@ -140,68 +164,41 @@ export default function OtherFilters() {
         </div>
 
         <div className="flex justify-end mt-15">
-          <button className="bg-sky-200 text-[32px] px-20 py-5" onClick={() => { dialogRef.current?.close() }}>
+          <button className="bg-sky-200 text-[32px] px-20 py-5" onClick={submitFilters}>
             Apply
           </button>
         </div>
       </dialog>
     </>
   );
+
+  function submitFilters() {
+    const selectedPlaceTypes: PlaceType[] = placeChipData
+      .filter((chip: ChipData) => chip.selected)
+      .map(chip => {
+        return {
+          typeid: chip.key,
+          name: chip.label
+        }
+      });
+
+    const otherFilters: OtherFiltersType = {
+      rating,
+      openingHours,
+      amenities: amenityChipData.filter(chip => chip.selected).map(place => place.label)
+    };
+
+    onApply(selectedPlaceTypes, otherFilters);
+    dialogRef.current?.close();
+  }
 }
 
-const basePlaceTypeChipData: ChipData[] = [
-  { key: 1, label: "acai_shop", selected: false },
-  { key: 2, label: "afghani_restaurant", selected: false },
-  { key: 3, label: "african_restaurant", selected: false },
-  { key: 4, label: "american_restaurant", selected: false },
-  { key: 5, label: "argentinian_restaurant", selected: false },
-  { key: 6, label: "asian_fusion_restaurant", selected: false },
-  { key: 7, label: "asian_restaurant", selected: false },
-  { key: 8, label: "australian_restaurant", selected: false },
-  { key: 9, label: "austrian_restaurant", selected: false },
-  { key: 10, label: "bagel_shop", selected: false },
-  { key: 11, label: "bakery", selected: false },
-  { key: 12, label: "bangladeshi_restaurant", selected: false },
-  { key: 13, label: "bar", selected: false },
-  { key: 14, label: "bar_and_grill", selected: false },
-  { key: 15, label: "barbecue_restaurant", selected: false },
-  { key: 16, label: "basque_restaurant", selected: false },
-  { key: 17, label: "bavarian_restaurant", selected: false },
-  { key: 18, label: "beer_garden", selected: false },
-  { key: 19, label: "belgian_restaurant", selected: false },
-  { key: 20, label: "bistro", selected: false },
-  { key: 21, label: "brazilian_restaurant", selected: false },
-  { key: 22, label: "breakfast_restaurant", selected: false },
-  { key: 23, label: "brewery", selected: false },
-  { key: 24, label: "brewpub", selected: false },
-  { key: 25, label: "british_restaurant", selected: false },
-  { key: 26, label: "brunch_restaurant", selected: false },
-  { key: 27, label: "buffet_restaurant", selected: false },
-  { key: 28, label: "burmese_restaurant", selected: false },
-  { key: 29, label: "burrito_restaurant", selected: false },
-  { key: 30, label: "cafe", selected: false },
-  { key: 31, label: "cafeteria", selected: false },
-  { key: 32, label: "cajun_restaurant", selected: false },
-  { key: 33, label: "cake_shop", selected: false },
-  { key: 34, label: "californian_restaurant", selected: false },
-  { key: 35, label: "cambodian_restaurant", selected: false },
-  { key: 36, label: "candy_store", selected: false },
-  { key: 37, label: "cantonese_restaurant", selected: false },
-  { key: 38, label: "caribbean_restaurant", selected: false },
-  { key: 39, label: "cat_cafe", selected: false },
-  { key: 40, label: "chicken_restaurant", selected: false },
-  { key: 41, label: "chicken_wings_restaurant", selected: false },
-  { key: 42, label: "chilean_restaurant", selected: false },
-  { key: 43, label: "chinese_noodle_restaurant", selected: false },
-  { key: 44, label: "chinese_restaurant", selected: false },
-  { key: 45, label: "chocolate_factory", selected: false },
-  { key: 46, label: "chocolate_shop", selected: false },
-  { key: 47, label: "cocktail_bar", selected: false },
-  { key: 48, label: "coffee_roastery", selected: false },
-  { key: 49, label: "coffee_shop", selected: false },
-  { key: 50, label: "coffee_stand", selected: false },
-];
 
+function formatChipLabel(name: string): string {
+  return name.split("_").join(" ");
+}
+
+// Marks and labels for the opening hours slider
 const openingHourMarks = [
   { value: 0, label: "12 AM" },
   { value: 1, label: "1 AM" },
@@ -229,6 +226,7 @@ const openingHourMarks = [
   { value: 23, label: "11 PM" }
 ];
 
+// Data for the amenity chips from the Google Maps API
 const baseAmenityChipData = [
   { key: 0, label: "Accepts Card", selected: false },
   { key: 1, label: "Accepts Cash", selected: false },
@@ -236,6 +234,5 @@ const baseAmenityChipData = [
   { key: 3, label: "Takeout", selected: false },
   { key: 4, label: "Accessible", selected: false },
   { key: 5, label: "Delivers", selected: false },
-  { key: 6, label: "Kids Menu", selected: false },
-  { key: 7, label: "Outdoor Seating", selected: false }
+  { key: 6, label: "Outdoor Seating", selected: false }
 ];
