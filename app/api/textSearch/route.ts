@@ -1,5 +1,5 @@
 import { insertRestaurant } from "@/app/lib/actions";
-import { NearbySearchResponse, NearbySearchResponsePlace } from "@/app/lib/data";
+import { MapsAPIResponse, GooglePlace } from "@/app/lib/data";
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -9,12 +9,9 @@ export async function GET(req: NextRequest) {
 
   // Filters parameters supported by Google Maps Text Search API
   const textQuery = searchParams.get("query");
-  const includedType = searchParams.get("placeType");
   const latitude = searchParams.get("lat");
   const longitude = searchParams.get("lng");
   const radius = searchParams.get("radius");
-  const minRating = searchParams.get("minRating");
-  const priceLevels = searchParams.get("priceLevels");
 
   const response = await fetch(
     "https://places.googleapis.com/v1/places:searchText",
@@ -27,7 +24,6 @@ export async function GET(req: NextRequest) {
       },
       body: JSON.stringify({
         textQuery,
-        includedType,
         locationBias: {
           circle: {
             center: {
@@ -37,8 +33,6 @@ export async function GET(req: NextRequest) {
             radius
           }
         },
-        minRating,
-        priceLevels,
         pageSize: 20,
         includePureServiceAreaBusinesses: true
       })
@@ -53,12 +47,12 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const placesJSON = await response.json() as NearbySearchResponse;
+  const placesJSON = await response.json() as MapsAPIResponse;
 
   if (placesJSON.places) {
     // Update the database with any new restaurants that haven't been retrieved yet  
     await Promise.all(
-      placesJSON.places.map((place: NearbySearchResponsePlace) => {
+      placesJSON.places.map((place: GooglePlace) => {
         insertRestaurant(place);
       })
     );

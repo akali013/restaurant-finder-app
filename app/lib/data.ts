@@ -43,11 +43,11 @@ export type FavoriteRestaurant = {
   restaurantid: string;
 };
 
-export interface NearbySearchResponse {
-  places: NearbySearchResponsePlace[];
+export interface MapsAPIResponse {
+  places: GooglePlace[];
 };
 
-export interface NearbySearchResponsePlace {
+export interface GooglePlace {
   accessibilityOptions?: {
     "wheelchairAccessibleParking": boolean,
     "wheelchairAccessibleEntrance": boolean,
@@ -68,13 +68,13 @@ export interface NearbySearchResponsePlace {
     longitude: number
   };
   currentOpeningHours?: {
-    periods: Period[];
-    weekdayDescriptions: string[];
-    secondaryHoursType: string;
-    specialDay: { date: GoogleDate };
-    nextOpenTime: string;
-    nextCloseTime: string;
-    openNow: boolean;
+    periods?: Period[];
+    weekdayDescriptions?: string[];
+    secondaryHoursType?: string;
+    specialDay?: { date: GoogleDate };
+    nextOpenTime?: string;
+    nextCloseTime?: string;
+    openNow?: boolean;
   };
   outdoorSeating?: boolean;
   paymentOptions?: {
@@ -85,7 +85,7 @@ export interface NearbySearchResponsePlace {
   };
   nationalPhoneNumber?: string;
   id: string;
-  priceLevel?: "PRICE_LEVEL_UNSPECIFIED" | "PRICE_LEVEL_FREE" | "PRICE_LEVEL_INEXPENSIVE" | "PRICE_LEVEL_MODERATE" | "PRICE_LEVEL_EXPENSIVE" | "PRICE_LEVEL_VERY_EXPENSIVE";
+  priceLevel?: GooglePriceLevel;
   primaryType: string;
   rating?: number;
   servesVegetarianFood?: boolean;
@@ -112,8 +112,12 @@ interface GoogleDate {
   day: number
 };
 
+export type GooglePriceLevel = "PRICE_LEVEL_UNSPECIFIED" | "PRICE_LEVEL_FREE" | "PRICE_LEVEL_INEXPENSIVE" | "PRICE_LEVEL_MODERATE" | "PRICE_LEVEL_EXPENSIVE" | "PRICE_LEVEL_VERY_EXPENSIVE";
+
 export type OtherFiltersType = {
   rating?: number[];
   openingHours?: number[];
   amenities?: string[];
 };
+
+export type ListFilterType = "All" | "Saved" | "Recommended";

@@ -1,13 +1,11 @@
-"use client";
-
-import Image from "next/image"
+import Image from "next/image";
 import RestaurantDetails from "@/app/ui/user/map/RestaurantDetails";
-import { NearbySearchResponsePlace } from "@/app/lib/data";
+import { GooglePlace } from "@/app/lib/data";
 import { useMap } from "@vis.gl/react-google-maps";
 import { getFormattedPrice, getFormattedType } from "@/app/lib/placeFormatting";
-import { saveRestaurant } from "@/app/lib/actions";
+import { saveRestaurant, unsaveRestaurant } from "@/app/lib/actions";
 
-export default function RestaurantMapEntry({ place }: { place: NearbySearchResponsePlace }) {
+export default function RestaurantMapEntry({ place, savedRestaurants }: { place: GooglePlace, savedRestaurants: GooglePlace[] }) {
   const map = useMap();
 
   return (
@@ -19,7 +17,11 @@ export default function RestaurantMapEntry({ place }: { place: NearbySearchRespo
         <div className="flex justify-center">
           <p className="text-2xl mr-5 capitalize text-nowrap">{getFormattedType(place)}</p>
           <p className="text-2xl mr-5 text-nowrap">Price: {getFormattedPrice(place)}</p>
-          {place.currentOpeningHours && <p className="text-2xl text-nowrap">{place.currentOpeningHours?.openNow ? "Open" : "Closed"}</p>}
+          {place.currentOpeningHours &&
+            <p className={`${place.currentOpeningHours?.openNow ? "text-sky-600" : "text-rose-600"} text-2xl text-nowrap`}>
+              {place.currentOpeningHours?.openNow ? "Open" : "Closed"}
+            </p>
+          }
         </div>
         <p className="text-2xl">{place.formattedAddress}</p>
       </div>
@@ -43,14 +45,26 @@ export default function RestaurantMapEntry({ place }: { place: NearbySearchRespo
         {/* Group restaurant details button and dialog into one component to keep a ref in one component */}
         <RestaurantDetails place={place} />
 
-        <button className="bg-sky-300 rounded-full" onClick={() => { saveRestaurant(place.id) }}>
-          <Image
-            src="/icons/save.png"
-            alt="Save restaurant"
-            width={40}
-            height={40}
-          />
-        </button>
+        {/* Show the option to save or unsave a restaurant depending on if it's already saved */}
+        {savedRestaurants.map(restaurant => restaurant.id).includes(place.id) ? (
+          <button className="bg-sky-300 rounded-full" onClick={() => { removeSavedRestaurant(place.id) }}>
+            <Image
+              src="/icons/unsave.png"
+              alt="Unsave restaurant"
+              width={40}
+              height={40}
+            />
+          </button>
+        ) : (
+          <button className="bg-sky-300 rounded-full" onClick={async () => { await addSavedRestaurant(place.id) }}>
+            <Image
+              src="/icons/save.png"
+              alt="Save restaurant"
+              width={40}
+              height={40}
+            />
+          </button>
+        )}
       </div>
 
       {/* Icons */}
@@ -94,4 +108,23 @@ export default function RestaurantMapEntry({ place }: { place: NearbySearchRespo
       </div>
     </div>
   );
+}
+
+// Saves the specified restaurant in the client and database
+async function addSavedRestaurant(placeId: string) {
+  await saveRestaurant(placeId);
+  const response = await fetch(`/api/placeDetails?placeId=${placeId}`);
+  const savedRestaurant = await response.json() as GooglePlace;
+
+  let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
+  savedRestaurants.push(savedRestaurant!);
+  localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
+}
+
+// Removes the specified restaurant from the client and database
+function removeSavedRestaurant(placeId: string) {
+  let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
+  savedRestaurants = savedRestaurants.filter((place: GooglePlace) => place.id !== placeId);
+  localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
+  unsaveRestaurant(placeId);
 }

@@ -1,7 +1,7 @@
-import { NearbySearchResponsePlace } from "./data";
+import { GooglePlace } from "./data";
 
 // Resolves the Google Maps API price levels into user-friendly descriptions
-export function getFormattedPrice(place: NearbySearchResponsePlace): string {
+export function getFormattedPrice(place: GooglePlace): string {
   let priceLevel = "";
 
   switch (place.priceLevel) {
@@ -18,7 +18,11 @@ export function getFormattedPrice(place: NearbySearchResponsePlace): string {
 
 // Resolves the Google Maps API place types with more readable names
 // Ex: bar_and_grill -> Bar And Grill
-export function getFormattedType(place: NearbySearchResponsePlace): string {
+export function getFormattedType(place: GooglePlace): string {
   const formattedType = place.primaryType.replaceAll("_", " ");
   return formattedType;
+}
+
+export function convertMilesToMeters(miles: number) {
+  return miles * 1609.34;
 }

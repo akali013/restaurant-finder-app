@@ -1,10 +1,11 @@
-import { NearbySearchResponsePlace } from "@/app/lib/data";
+import { saveRestaurant } from "@/app/lib/actions";
+import { GooglePlace } from "@/app/lib/data";
 import { getFormattedPrice, getFormattedType } from "@/app/lib/placeFormatting";
 import Image from "next/image";
 import { useRef } from "react";
 
 // A dialog that provides more info about a restaurant
-export default function RestaurantDetails({ place }: { place: NearbySearchResponsePlace }) {
+export default function RestaurantDetails({ place }: { place: GooglePlace }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const currentDay = new Date().getDay();
 
@@ -31,7 +32,7 @@ export default function RestaurantDetails({ place }: { place: NearbySearchRespon
         <h2>{place.rating}</h2>
         <h2>Opening Hours</h2>
         {place.currentOpeningHours ? (
-          <ul>{place.currentOpeningHours?.weekdayDescriptions.map(day => (
+          <ul>{place.currentOpeningHours?.weekdayDescriptions?.map(day => (
             <li key={day}>
               {day}
             </li>
@@ -52,7 +53,7 @@ export default function RestaurantDetails({ place }: { place: NearbySearchRespon
         </ul>
 
         <div className="flex absolute top-10 right-10">
-          <button className="bg-sky-200 rounded-full mr-10 p-5">
+          <button className="bg-sky-200 rounded-full mr-10 p-5" onClick={() => saveRestaurant(place.id)}>
             <Image
               src="/icons/save.png"
               alt="Save restaurant"

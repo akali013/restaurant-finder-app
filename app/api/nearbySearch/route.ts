@@ -1,5 +1,5 @@
 import { insertRestaurant } from "@/app/lib/actions";
-import { NearbySearchResponse, NearbySearchResponsePlace } from "@/app/lib/data";
+import { MapsAPIResponse, GooglePlace } from "@/app/lib/data";
 import { NextRequest, NextResponse } from "next/server";
 
 // Route for an API call to the Nearby Search API using server filters
@@ -48,12 +48,12 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const placesJSON = await response.json() as NearbySearchResponse;
+  const placesJSON = await response.json() as MapsAPIResponse;
 
   if (placesJSON.places) {
     // Update the database with any new restaurants that haven't been retrieved yet  
     await Promise.all(
-      placesJSON.places.map((place: NearbySearchResponsePlace) => {
+      placesJSON.places.map((place: GooglePlace) => {
         insertRestaurant(place);
       })
     );

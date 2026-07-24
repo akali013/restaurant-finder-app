@@ -1,9 +1,9 @@
-import { NearbySearchResponsePlace } from "@/app/lib/data";
+import { GooglePlace } from "@/app/lib/data";
 import { getFormattedType } from "@/app/lib/placeFormatting";
 import Link from "next/link";
 
 // Displays a small info window when a pin on the map is clicked
-export default function InfoWindowContent({ place }: { place: NearbySearchResponsePlace }) {
+export default function InfoWindowContent({ place }: { place: GooglePlace }) {
 
   return (
     <div className="flex flex-col text-[16px] justify-center">

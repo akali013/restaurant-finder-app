@@ -1,6 +1,9 @@
+"use client";
+
 import Slider from "@mui/material/Slider";
 import { MouseEventHandler, useState } from "react";
-
+import { useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 // Slider labels and marks
 const marks = [
@@ -13,7 +16,11 @@ const marks = [
   { value: 30, label: "30 mi" },
 ];
 
-export default function DistanceFilterTab({ miles, onMilesChange, onClick }: { miles: number, onMilesChange: (miles: number) => void, onClick: MouseEventHandler<HTMLButtonElement> }) {
+export default function DistanceFilterTab({ onClick }: { onClick: MouseEventHandler<HTMLButtonElement> }) {
+  const [miles, setMiles] = useState(0);
+  const searchParams = new URLSearchParams(useSearchParams());
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
   return (
     <div className="flex justify-center items-center px-10 py-3">
@@ -25,11 +32,15 @@ export default function DistanceFilterTab({ miles, onMilesChange, onClick }: { m
         min={0}
         max={30}
         value={miles}
-        onChange={(_, value) => onMilesChange(value)}
+        onChange={(_, value) => setMiles(value)}
         marks={marks}
       />
 
-      <button className="bg-sky-200 ml-10 rounded-full" onClick={onClick}>
+      <button className="bg-sky-200 ml-10 rounded-full" onClick={(e) => {
+        searchParams.set("miles", miles.toString());
+        onClick(e);
+        replace(`${pathname}?${searchParams.toString()}`);
+      }}>
         OK
       </button>
     </div>

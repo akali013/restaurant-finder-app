@@ -1,9 +1,14 @@
-import { Map } from "@vis.gl/react-google-maps";
+"use client";
+
+import { Map, Circle } from "@vis.gl/react-google-maps";
 import MapMarkers from "./MapMarkers";
-import { NearbySearchResponsePlace } from "@/app/lib/data";
+import { GooglePlace } from "@/app/lib/data";
 
-
-export default function RestaurantMap({ userLocation, places }: { userLocation: { lat: number, lng: number }, places: NearbySearchResponsePlace[] }) {
+export default function RestaurantMap({ userLocation, meters, places }: {
+  userLocation: { lat: number, lng: number },
+  meters: number,
+  places: GooglePlace[]
+}) {
   const defaultZoom = 13;
 
   return (
@@ -15,6 +20,16 @@ export default function RestaurantMap({ userLocation, places }: { userLocation: 
           mapId="DEMO_MAP_ID"   // Enables advanced markers
           className="h-screen w-[66vw]"
         >
+          {meters > 0 &&
+            <Circle
+              center={userLocation}
+              radius={meters}
+              fillColor={"#bae6fd"}
+              fillOpacity={0.25}
+              strokeColor={"#38bdf8"}
+              strokeWeight={5}
+            />
+          }
           {places && <MapMarkers places={places} />}
         </Map>
       }

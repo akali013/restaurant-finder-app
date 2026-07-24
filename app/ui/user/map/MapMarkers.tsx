@@ -1,7 +1,7 @@
-import { NearbySearchResponsePlace } from "@/app/lib/data";
+import { GooglePlace } from "@/app/lib/data";
 import MapMarker from "./MapMarker";
 
-export default function MapMarkers({ places }: { places: NearbySearchResponsePlace[] }) {
+export default function MapMarkers({ places }: { places: GooglePlace[] }) {
   return (
     <>
       {places.map(place => {
