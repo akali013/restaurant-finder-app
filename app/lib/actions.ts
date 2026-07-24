@@ -7,7 +7,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import postgres from "postgres";
 import { redirect } from "next/navigation";
-import { NearbySearchResponsePlace, PlaceType, Restaurant } from "@/app/lib/data";
+import { GooglePlace, PlaceType, Restaurant } from "@/app/lib/data";
 
 // Initialize postgres db
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
@@ -83,7 +83,7 @@ export async function createAccount(prevState: string | undefined, formData: For
   redirect("/");
 }
 
-// Saves the specified place under the current user
+// Saves the specified place under the current user and returns its details from the Places API
 export async function saveRestaurant(placeId: string) {
   const session = await auth();
 
@@ -101,12 +101,33 @@ export async function saveRestaurant(placeId: string) {
   }
   catch (error) {
     console.error(error);
-    return "Database Error: Cannot save restaurant.";
+    console.log("Database Error: Cannot save restaurant.");
+  }
+}
+
+// Removes a saved restaurant for the current user
+export async function unsaveRestaurant(placeId: string) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const userId = session.user.id;
+
+  try {
+    await sql`
+      DELETE FROM FavoriteRestaurants
+      WHERE userid = ${userId} AND restaurantid = ${placeId}
+    `;
+  } catch (error) {
+    console.error(error);
+    console.error("Database Error: Failed to unsave restaurant.");
   }
 }
 
 // Inserts only new restaurants into the db so they can be referenced by the FavoriteRestaurants table
-export async function insertRestaurant(place: NearbySearchResponsePlace) {
+export async function insertRestaurant(place: GooglePlace) {
   try {
     await sql`
       INSERT INTO Restaurants (restaurantId, name, address, phoneNumber)
@@ -129,6 +150,32 @@ export async function getPlaceTypes() {
     return placeTypes;
   }
   catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+// Gets the ids of the saved restuarants for the currently logged in user
+export async function getSavedRestaurantIds() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const userId = session.user.id;
+
+  try {
+    const savedIds = await sql`
+      SELECT r.restaurantid FROM Restaurants r
+      INNER JOIN FavoriteRestaurants f
+      ON f.userid = ${userId} AND r.restaurantid = f.restaurantid;
+    `;
+
+    return savedIds as unknown as { restaurantid: string }[];
+  }
+  catch (error) {
+    console.error("Database Error: Failed to get saved restaurants.");
     console.error(error);
     return [];
   }

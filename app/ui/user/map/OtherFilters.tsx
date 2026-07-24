@@ -1,44 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import Chip from "@mui/material/Chip";
 import { Slider } from "@mui/material";
 import { OtherFiltersType, PlaceType } from "@/app/lib/data";
-import { getPlaceTypes } from "@/app/lib/actions";
+import { usePlaceTypes } from "@/app/lib/hooks/usePlaceTypes";
+import { useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-
-interface ChipData {
+export interface ChipData {
   key: number;
   label: string;
   selected: boolean;
 };
 
-export default function OtherFilters({ onApply }: { onApply: (placeTypes: PlaceType[], otherFilters: OtherFiltersType) => void }) {
+export default function OtherFilters() {
   const dialogRef = useRef<HTMLDialogElement>(null);    // References the dialog so it can be opened and closed with browser methods
   const [placeChipData, setPlaceChipData] = useState<ChipData[]>([]);
   const [rating, setRating] = useState<number[]>([1, 5]);
   const [openingHours, setOpeningHours] = useState<number[]>([0, 23]);     // Military hours
   const [amenityChipData, setAmenityChipData] = useState(baseAmenityChipData);
+  const searchParams = new URLSearchParams(useSearchParams());
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
-  useEffect(() => {
-    let ignore = false;
-    async function retrievePlaceTypes() {
-      const placeTypes = await getPlaceTypes();
-      setPlaceChipData(placeTypes.map((placeType: PlaceType) => {
-        return {
-          key: placeType.typeid,
-          label: placeType.name,
-          selected: false
-        };
-      }));
-    }
-
-    if (!ignore) retrievePlaceTypes();
-    return () => {
-      ignore = true;
-    }
-  }, []);
+  usePlaceTypes(setPlaceChipData);    // Get place types from postgres db
 
   // Handles selecting and unselecting chips for the place types and amenities 
 
@@ -68,7 +55,7 @@ export default function OtherFilters({ onApply }: { onApply: (placeTypes: PlaceT
 
   return (
     <>
-      <button className="flex justify-center items-center bg-sky-200" onClick={() => { dialogRef.current?.showModal() }}>
+      <button className={`${searchParams.get("otherFilters") ? "bg-sky-400" : "bg-sky-200"} flex justify-center items-center`} onClick={() => { dialogRef.current?.showModal() }}>
         <Image
           src="/icons/filter.png"
           alt="Open other filters"
@@ -188,11 +175,13 @@ export default function OtherFilters({ onApply }: { onApply: (placeTypes: PlaceT
       amenities: amenityChipData.filter(chip => chip.selected).map(place => place.label)
     };
 
-    onApply(selectedPlaceTypes, otherFilters);
+    searchParams.set("placeTypes", JSON.stringify(selectedPlaceTypes));
+    searchParams.set("otherFilters", JSON.stringify(otherFilters));
     dialogRef.current?.close();
+
+    replace(`${pathname}?${searchParams.toString()}`);
   }
 }
-
 
 function formatChipLabel(name: string): string {
   return name.split("_").join(" ");

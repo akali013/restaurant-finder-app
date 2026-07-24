@@ -1,35 +1,56 @@
+"use client";
+
 import Image from "next/image";
 import PriceFilterTab from "@/app/ui/user/map/PriceFilterTab";
 import DistanceFilterTab from "./DistanceFilterTab";
 import OtherFilters from "@/app/ui/user/map/OtherFilters";
-import { MouseEventHandler, useState } from "react";
-import { OtherFiltersType, PlaceType } from "@/app/lib/data";
+import { useState } from "react";
+import { GooglePriceLevel, ListFilterType } from "@/app/lib/data";
 import RestaurantSearchBar from "./RestaurantSearchBar";
+import { useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-export default function RestaurantHeader(
-  { miles, onMilesChange, onPriceFilter, onOtherFilters, filtersActive, onClearFilters }:
-    {
-      miles: number,
-      onMilesChange: (miles: number) => void,
-      onPriceFilter: (priceLevel: "" | "Low" | "Medium" | "Expensive" | "Very Expensive" | "Unspecified") => void,
-      onOtherFilters: (placeTypes: PlaceType[], otherFilters: OtherFiltersType) => void,
-      filtersActive: boolean,
-      onClearFilters: MouseEventHandler<HTMLButtonElement>
-    }) {
+export default function RestaurantHeader({ filtersActive }: { filtersActive: boolean }) {
   // Current filter being selected
   const [currentFilter, setCurrentFilter] = useState<"" | "Distance" | "Price">("");
+  const searchParams = new URLSearchParams(useSearchParams());
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  const listType = searchParams.get("listType") as ListFilterType;
+  const miles = Number(searchParams.get("miles")) || 0;
+  const priceLevel = searchParams.get("priceLevel") as GooglePriceLevel || "";
+
+  // Clear filters by removing all filter search parameters
+  function clearFilters() {
+    searchParams.delete("miles");
+    searchParams.delete("placeTypes");
+    searchParams.delete("priceLevel");
+    searchParams.delete("otherFilters");
+
+    replace(`${pathname}?${searchParams.toString()}`);
+  }
 
   return (
     <div className="flex flex-col items-center bg-mauve-300 lg:w-[34vw] lg:pr-5">
       {/* Restaurant option buttons */}
       <div className="flex justify-center mt-2">
-        <button className="bg-sky-200 sm:text-[15px] lg:text-[24px] mr-5">
+        <button className={`${listType === "All" ? "bg-sky-400" : "bg-sky-200"} sm:text-[15px] lg:text-[24px] mr-5`} onClick={() => {
+          searchParams.set("listType", "All");
+          replace(`${pathname}?${searchParams.toString()}`);
+        }}>
           All Restaurants
         </button>
-        <button className="bg-sky-200 sm:text-[15px] lg:text-[24px] mr-5">
+        <button className={`${listType === "Saved" ? "bg-sky-400" : "bg-sky-200"} sm:text-[15px] lg:text-[24px] mr-5`} onClick={() => {
+          searchParams.set("listType", "Saved");
+          replace(`${pathname}?${searchParams.toString()}`);
+        }}>
           Saved
         </button>
-        <button className="bg-sky-200 sm:text-[15px] lg:text-[24px]">
+        <button className={`${listType === "Recommended" ? "bg-sky-400" : "bg-sky-200"} sm:text-[15px] lg:text-[24px]`} onClick={() => {
+          searchParams.set("listType", "Recommended");
+          replace(`${pathname}?${searchParams.toString()}`);
+        }}>
           Recommended
         </button>
       </div>
@@ -39,9 +60,9 @@ export default function RestaurantHeader(
         <RestaurantSearchBar />
 
         {filtersActive &&
-          <button 
+          <button
             className="bg-rose-300 text-[20px] text-nowrap ml-5 flex justify-center items-center"
-            onClick={onClearFilters}
+            onClick={clearFilters}
           >
             <Image
               src="/icons/delete.png"
@@ -57,7 +78,7 @@ export default function RestaurantHeader(
       {/* Filter buttons */}
       <div className="flex justify-center mt-5 mb-2 relative">
         <button
-          className="flex justify-center items-center bg-sky-200 mr-5"
+          className={`${miles !== 0 ? "bg-sky-400" : "bg-sky-200"} flex justify-center items-center mr-5`}
           onClick={() => currentFilter === "Distance" ? setCurrentFilter("") : setCurrentFilter("Distance")}
         >
           <Image
@@ -70,7 +91,7 @@ export default function RestaurantHeader(
           <span className="text-lg text-nowrap">Filter by distance</span>
         </button>
         <button
-          className="flex justify-center items-center bg-sky-200 mr-5"
+          className={`${priceLevel ? "bg-sky-400" : "bg-sky-200"} flex justify-center items-center mr-5`}
           onClick={() => currentFilter === "Price" ? setCurrentFilter("") : setCurrentFilter("Price")}>
           <Image
             src="/icons/price.png"
@@ -82,21 +103,21 @@ export default function RestaurantHeader(
           <span className="text-lg text-nowrap">Filter by price</span>
         </button>
         {/* Group other filters button and dialog into one component to keep a ref in one component */}
-        <OtherFilters onApply={onOtherFilters} />
+        <OtherFilters />
 
         <div className="absolute left-0 right-0 -bottom-20 z-1 bg-mauve-400">
-          {currentFilter === "Price" && <PriceFilterTab onClick={(priceLevel: "" | "Low" | "Medium" | "Expensive" | "Very Expensive" | "Unspecified") => {
-            onPriceFilter(priceLevel);
-            setCurrentFilter("");
-          }} />}
-          {currentFilter === "Distance" &&
-            <DistanceFilterTab
-              miles={miles}
-              onMilesChange={onMilesChange}
-              onClick={() => {
+          {currentFilter === "Price" &&
+            <PriceFilterTab
+              onClick={(priceLevel: GooglePriceLevel) => {
+                searchParams.set("priceLevel", priceLevel);
                 setCurrentFilter("");
+                replace(`${pathname}?${searchParams.toString()}`);
               }}
+              priceLevel={priceLevel} 
             />}
+
+          {currentFilter === "Distance" &&
+            <DistanceFilterTab onClick={() => setCurrentFilter("")} />}
         </div>
       </div>
     </div>

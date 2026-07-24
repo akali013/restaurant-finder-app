@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+// Updates the search parameters with the user's location
 export default function useUserLocation() {
   const [userLocation, setUserLocation] = useState({ lat: 0, lng: 0 });
 
   // Get the user's location with geolocation
-  // useEffect for the external navigator API
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {

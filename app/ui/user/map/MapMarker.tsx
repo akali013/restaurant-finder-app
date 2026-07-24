@@ -1,18 +1,18 @@
 "use client";
 
-import { NearbySearchResponsePlace } from "@/app/lib/data";
+import { GooglePlace } from "@/app/lib/data";
 import { useAdvancedMarkerRef, AdvancedMarker, Pin, InfoWindow, useMap } from "@vis.gl/react-google-maps";
 import { useState, useCallback } from "react";
 import InfoWindowContent from "./InfoWindowContent";
 
-export default function MapMarker({ place }: { place: NearbySearchResponsePlace }) {
+export default function MapMarker({ place }: { place: GooglePlace }) {
   // Connect the marker to its associated InfoWindow
   const [markerRef, marker] = useAdvancedMarkerRef();
   const [showInfoWindow, setShowInfoWindow] = useState(false);
   const map = useMap();
 
   const handleClick = useCallback(
-    (e: google.maps.marker.AdvancedMarkerClickEvent, place: NearbySearchResponsePlace) => {
+    (e: google.maps.marker.AdvancedMarkerClickEvent, place: GooglePlace) => {
       if (!map) return;
       if (!e.target) return;    // The marker that was clicked
 
