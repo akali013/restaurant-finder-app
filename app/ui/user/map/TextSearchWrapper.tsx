@@ -63,6 +63,7 @@ export default function TextSearchWrapper({ query, listType, miles, placeTypes, 
           places={locations}
           filtersActive={filtersActive}
           savedRestaurants={savedRestaurants}
+          setSavedRestaurants={setSavedRestaurants}
         />
         <RestaurantMap userLocation={userLocation} meters={convertMilesToMeters(miles)} places={locations} />
       </APIProvider>
