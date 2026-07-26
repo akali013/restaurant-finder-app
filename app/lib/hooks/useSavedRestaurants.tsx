@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { GooglePlace, ListFilterType } from "../data";
 import { getSavedRestaurantIds } from "../actions";
 
 // Gets the Google Place data of each saved restaurant from the postgres db using its restaurantid
-export default function useSavedRestaurants(listType: ListFilterType) {
+export default function useSavedRestaurants(listType: ListFilterType): [GooglePlace[], Dispatch<SetStateAction<GooglePlace[]>>] {
   const [savedRestaurants, setSavedRestaurants] = useState<GooglePlace[]>([]);
 
   useEffect(() => {
@@ -39,5 +39,5 @@ export default function useSavedRestaurants(listType: ListFilterType) {
     }
   }, [listType]);
 
-  return savedRestaurants;
+  return [savedRestaurants, setSavedRestaurants];
 }

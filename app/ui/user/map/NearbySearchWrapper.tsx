@@ -23,7 +23,7 @@ export default function NearbySearchWrapper({ listType, miles, placeTypes, price
   // Call hooks first since they can't be called conditionally
   const userLocation = useUserLocation();
   const nearbyRestaurants = useNearbySearch(userLocation, listType, miles, placeTypes);
-  const savedRestaurants = useSavedRestaurants(listType);
+  const [savedRestaurants, setSavedRestaurants] = useSavedRestaurants(listType);
 
   let originalLocations: GooglePlace[] = [];
 
@@ -64,6 +64,7 @@ export default function NearbySearchWrapper({ listType, miles, placeTypes, price
           places={locations}
           filtersActive={filtersActive}
           savedRestaurants={savedRestaurants}
+          setSavedRestaurants={setSavedRestaurants}
         />
         <RestaurantMap userLocation={userLocation} meters={convertMilesToMeters(miles)} places={locations} />
       </APIProvider>

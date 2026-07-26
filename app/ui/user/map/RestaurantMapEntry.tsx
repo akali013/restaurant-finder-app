@@ -4,8 +4,9 @@ import { GooglePlace } from "@/app/lib/data";
 import { useMap } from "@vis.gl/react-google-maps";
 import { getFormattedPrice, getFormattedType } from "@/app/lib/placeFormatting";
 import { saveRestaurant, unsaveRestaurant } from "@/app/lib/actions";
+import { Dispatch, SetStateAction } from "react";
 
-export default function RestaurantMapEntry({ place, savedRestaurants }: { place: GooglePlace, savedRestaurants: GooglePlace[] }) {
+export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRestaurants }: { place: GooglePlace, savedRestaurants: GooglePlace[], setSavedRestaurants: Dispatch<SetStateAction<GooglePlace[]>> }) {
   const map = useMap();
 
   return (
@@ -47,7 +48,7 @@ export default function RestaurantMapEntry({ place, savedRestaurants }: { place:
 
         {/* Show the option to save or unsave a restaurant depending on if it's already saved */}
         {savedRestaurants.map(restaurant => restaurant.id).includes(place.id) ? (
-          <button className="bg-sky-300 rounded-full" onClick={() => { removeSavedRestaurant(place.id) }}>
+          <button className="bg-sky-500 rounded-full" onClick={async () => { await removeSavedRestaurant(place.id) }}>
             <Image
               src="/icons/unsave.png"
               alt="Unsave restaurant"
@@ -108,23 +109,26 @@ export default function RestaurantMapEntry({ place, savedRestaurants }: { place:
       </div>
     </div>
   );
+
+  // Saves the specified restaurant in the client and database
+  async function addSavedRestaurant(placeId: string) {
+    await saveRestaurant(placeId);
+    const response = await fetch(`/api/placeDetails?placeId=${placeId}`);
+    const savedRestaurant = await response.json() as GooglePlace;
+
+    let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
+    savedRestaurants.push(savedRestaurant!);
+    localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
+    setSavedRestaurants(savedRestaurants);
+  }
+
+  // Removes the specified restaurant from the client and database
+  async function removeSavedRestaurant(placeId: string) {
+    let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
+    savedRestaurants = savedRestaurants.filter((place: GooglePlace) => place.id !== placeId);
+    localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
+    await unsaveRestaurant(placeId);
+    setSavedRestaurants(savedRestaurants);
+  }
 }
 
-// Saves the specified restaurant in the client and database
-async function addSavedRestaurant(placeId: string) {
-  await saveRestaurant(placeId);
-  const response = await fetch(`/api/placeDetails?placeId=${placeId}`);
-  const savedRestaurant = await response.json() as GooglePlace;
-
-  let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
-  savedRestaurants.push(savedRestaurant!);
-  localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
-}
-
-// Removes the specified restaurant from the client and database
-function removeSavedRestaurant(placeId: string) {
-  let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
-  savedRestaurants = savedRestaurants.filter((place: GooglePlace) => place.id !== placeId);
-  localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
-  unsaveRestaurant(placeId);
-}
