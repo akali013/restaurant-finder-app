@@ -23,7 +23,7 @@ export default function TextSearchWrapper({ query, listType, miles, placeTypes, 
 }) {
   const userLocation = useUserLocation();
   const searchedRestaurants = useTextSearch(query, userLocation, listType, miles);
-  const savedRestaurants = useSavedRestaurants(listType);
+  const [savedRestaurants, setSavedRestaurants] = useSavedRestaurants(listType);
 
   let originalLocations: GooglePlace[] = [];
 
@@ -63,6 +63,7 @@ export default function TextSearchWrapper({ query, listType, miles, placeTypes, 
           places={locations}
           filtersActive={filtersActive}
           savedRestaurants={savedRestaurants}
+          setSavedRestaurants={setSavedRestaurants}
         />
         <RestaurantMap userLocation={userLocation} meters={convertMilesToMeters(miles)} places={locations} />
       </APIProvider>

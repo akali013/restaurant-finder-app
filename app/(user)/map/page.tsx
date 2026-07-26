@@ -1,6 +1,6 @@
-import { GooglePriceLevel, ListFilterType } from "../lib/data";
-import NearbySearchWrapper from "../ui/user/map/NearbySearchWrapper";
-import TextSearchWrapper from "../ui/user/map/TextSearchWrapper";
+import { GooglePriceLevel, ListFilterType } from "../../lib/data";
+import NearbySearchWrapper from "../../ui/user/map/NearbySearchWrapper";
+import TextSearchWrapper from "../../ui/user/map/TextSearchWrapper";
 
 export default async function MapPage(props: {
   searchParams?: Promise<{
