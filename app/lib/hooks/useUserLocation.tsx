@@ -13,12 +13,14 @@ export default function useUserLocation() {
         setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
       },
         () => {
-          console.error("Location denied.");
+          console.error("Location services were denied.");
+          throw new Error("Location services were denied.");
         }
       );
     }
     else {
       console.error("Browser does not support geolocation.");
+      throw new Error("Browser does not support geolocation.");
     }
   }, []);
 

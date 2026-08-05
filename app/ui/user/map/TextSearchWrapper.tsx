@@ -56,8 +56,8 @@ export default function TextSearchWrapper({ query, listType, miles, placeTypes, 
       <APIProvider
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
         libraries={["places"]}
-        onLoad={() => console.log("Maps API has loaded.")
-        }
+        onLoad={() => console.log("Maps API has loaded.")}
+        onError={() => { throw new Error("Cannot load Maps API.") }}  // This will load /map/error.tsx
       >
         <RestaurantList
           places={locations}

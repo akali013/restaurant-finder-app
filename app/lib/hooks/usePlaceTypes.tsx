@@ -2,8 +2,8 @@
 
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { getPlaceTypes } from "@/app/lib/actions";
-import { PlaceType } from "@/app/lib/data";
-import { ChipData } from "@/app/ui/user/map/OtherFilters";
+import { ChipData, PlaceType } from "@/app/lib/data";
+
 
 // Retrieve place types from the postgres db
 export function usePlaceTypes(setPlaceChipData: Dispatch<SetStateAction<ChipData[]>>) {
