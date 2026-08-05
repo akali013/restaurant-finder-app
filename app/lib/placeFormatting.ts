@@ -26,3 +26,7 @@ export function getFormattedType(place: GooglePlace): string {
 export function convertMilesToMeters(miles: number) {
   return miles * 1609.34;
 }
+
+export function formatChipLabel(name: string): string {
+  return name.split("_").join(" ");
+}

@@ -5,20 +5,9 @@ import { User } from "@/app/lib/data";
 import bcrypt from "bcryptjs";
 import postgres from "postgres";
 import { z } from "zod";
+import { getUserFromEmail } from "./app/lib/actions";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
-
-// Find the user with the entered email from the login page
-async function getUserFromEmail(email: string): Promise<User | undefined> {
-  try {
-    const user = await sql<User[]>`SELECT * FROM Users WHERE email=${email}`;
-    return user[0];
-  }
-  catch (error) {
-    console.error("Failed to fetch user:", error);
-    throw new Error("Failed to fetch user.");
-  }
-}
 
 // Export auth, signIn, and signOut so bcryptjs can compare passwords
 export const { auth, signIn, signOut } = NextAuth({

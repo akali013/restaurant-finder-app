@@ -9,7 +9,18 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
 
-      return isLoggedIn; // Redirect unauthenticated users to the login page if they're not logged in
+      // Redirect unauthenticated users to the login page if they're not logged in
+      const isOnMap = nextUrl.pathname.startsWith('/map');
+      const isOnSaved = nextUrl.pathname.startsWith("/saved");
+      const isOnSettings = nextUrl.pathname.startsWith("/settings");
+
+      if (isOnMap || isOnSaved || isOnSettings) {
+        if (isLoggedIn) return true;    // Take authenticated users to their desired page
+        return false; // Redirect unauthenticated users to login page
+      } else if (isLoggedIn) {
+        return Response.redirect(new URL('/map', nextUrl));   // Take user to the map page by default
+      }
+      return true;
     },
   },
   providers: []

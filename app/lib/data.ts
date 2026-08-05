@@ -25,22 +25,30 @@ export type PlaceType = {
 
 export type Preference = {
   preferenceid: string;
-  address: string;
-  isAccessible: boolean;
-  hasDelivery: boolean;
-  openingHours: string[];
-  hasOutdoorSeating: boolean;
-  priceLevel: string;
-  acceptsCard: boolean;
-  acceptsCash: boolean;
-  rating: string;
-  hasVegetarian: boolean;
-  hasTakeout: boolean;
+  isaccessible: boolean;
+  hasdelivery: boolean;
+  hasoutdoorseating: boolean;
+  acceptscard: boolean;
+  acceptscash: boolean;
+  hasvegetarian: boolean;
+  hastakeout: boolean;
+  minrating: number;
+  isinexpensive: boolean;
+  ismoderate: boolean;
+  isexpensive: boolean;
+  isveryexpensive: boolean;
+  starthour: number;
+  endhour: number;
 };
 
 export type FavoriteRestaurant = {
   userid: string;
   restaurantid: string;
+};
+
+export type PreferencePlaceType = {
+  preferenceid: string;
+  placetypeid: number;
 };
 
 export interface MapsAPIResponse {
@@ -121,3 +129,37 @@ export type OtherFiltersType = {
 };
 
 export type ListFilterType = "All" | "Saved" | "Recommended";
+
+export interface ChipData {
+  key: number;
+  label: string;
+  selected: boolean;
+};
+
+// Marks and labels for the opening hours slider
+export const openingHourMarks = [
+  { value: 0, label: "12 AM" },
+  { value: 1, label: "1 AM" },
+  { value: 2, label: "2 AM" },
+  { value: 3, label: "3 AM" },
+  { value: 4, label: "4 AM" },
+  { value: 5, label: "5 AM" },
+  { value: 6, label: "6 AM" },
+  { value: 7, label: "7 AM" },
+  { value: 8, label: "8 AM" },
+  { value: 9, label: "9 AM" },
+  { value: 10, label: "10 AM" },
+  { value: 11, label: "11 AM" },
+  { value: 12, label: "12 PM" },
+  { value: 13, label: "1 PM" },
+  { value: 14, label: "2 PM" },
+  { value: 15, label: "3 PM" },
+  { value: 16, label: "4 PM" },
+  { value: 17, label: "5 PM" },
+  { value: 18, label: "6 PM" },
+  { value: 19, label: "7 PM" },
+  { value: 20, label: "8 PM" },
+  { value: 21, label: "9 PM" },
+  { value: 22, label: "10 PM" },
+  { value: 23, label: "11 PM" }
+];
