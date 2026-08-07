@@ -12,7 +12,7 @@ export default function MapErrorPage({ error, reset }: { error: Error & { digest
         width={50}
         height={50}
       />
-      <p>{error.toString()}</p>
+      <p>Map cannot be loaded at this time. Please allow location services or try again later.</p>
       <button className="bg-sky-300">
         Try again
       </button>
