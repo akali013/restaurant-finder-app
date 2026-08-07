@@ -100,12 +100,12 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
         <button
           className={`${priceLevels.includes("PRICE_LEVEL_INEXPENSIVE") ? "bg-sky-500" : "bg-sky-300"}`}
           onClick={() => { priceLevels.includes("PRICE_LEVEL_INEXPENSIVE") ? removePriceLevel("PRICE_LEVEL_INEXPENSIVE") : addPriceLevel("PRICE_LEVEL_INEXPENSIVE") }}>
-          Inexpensive
+          Low
         </button>
         <button
           className={`${priceLevels.includes("PRICE_LEVEL_MODERATE") ? "bg-sky-500" : "bg-sky-300"}`}
           onClick={() => { priceLevels.includes("PRICE_LEVEL_MODERATE") ? removePriceLevel("PRICE_LEVEL_MODERATE") : addPriceLevel("PRICE_LEVEL_MODERATE") }}>
-          Moderate
+          Medium
         </button>
         <button
           className={`${priceLevels.includes("PRICE_LEVEL_EXPENSIVE") ? "bg-sky-500" : "bg-sky-300"}`}

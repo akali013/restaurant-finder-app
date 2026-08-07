@@ -1,7 +1,8 @@
+import { Preference } from "@/app/lib/data";
 import Image from "next/image";
 
 // Icon and a message that shows when no places are found for the applied filters
-export default function NoPlacesFound({ filtersActive }: { filtersActive: boolean }) {
+export default function NoPlacesFound({ filtersActive, preference }: { filtersActive: boolean, preference?: Preference }) {
   return (
     <div className="w-full h-full bg-mauve-100 flex flex-col items-center justify-center">
       <Image
@@ -12,6 +13,7 @@ export default function NoPlacesFound({ filtersActive }: { filtersActive: boolea
       />
       <h1 className="text-3xl">No places found!</h1>
       {filtersActive && <p>Try changing or clearing your filters.</p>}
+      {preference && <p>Try changing your preferences.</p>}
     </div>
   );
 }

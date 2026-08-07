@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
             radius
           }
         },
-        rankPreference: "DISTANCE"
+        rankPreference: "POPULARITY"
       })
     }
   );
