@@ -50,23 +50,25 @@ export default function OtherFilters() {
 
   return (
     <>
-      <button className={`${searchParams.get("otherFilters") ? "bg-sky-400" : "bg-sky-200"} flex justify-center items-center`} onClick={() => { dialogRef.current?.showModal() }}>
+      <button
+        className={`${searchParams.get("otherFilters") ? "bg-sky-400" : "bg-sky-200"} flex justify-between items-center`}
+        onClick={() => { dialogRef.current?.showModal() }}
+      >
         <Image
           src="/icons/filter.png"
           alt="Open other filters"
           width={30}
           height={30}
-          className="mr-3"
         />
-        <span className="text-lg text-nowrap">Other filters</span>
+        <span className="max-sm:hidden text-[16px] lg:text-[18px]">Other filters</span>
       </button>
 
       <dialog
         ref={dialogRef}
         closedby="any"
-        className="absolute w-[90vw] h-[90vh] bg-mauve-200 p-5 left-15 right-15 top-5 bottom-5 backdrop:backdrop-blur-sm"
+        className="absolute w-[90vw] h-[90vh] bg-mauve-200 p-5 lg:left-15 lg:right-15 max-md:left-5 max-md:right-5 top-5 lg:bottom-5 backdrop:backdrop-blur-sm"
       >
-        <h1 className="text-[64px] font-bold">Other Filters</h1>
+        <h1 className="text-[64px] font-bold max-md:text-[50px]">Other Filters</h1>
         <button className="absolute top-10 right-10 p-3 rounded-full" onClick={() => dialogRef.current?.close()}>
           <Image
             src="/icons/close.png"
@@ -100,7 +102,7 @@ export default function OtherFilters() {
         </div>
 
         <h2 className="text-[32px]">Rating</h2>
-        <div className="w-[50%] mt-5 ml-5">
+        <div className="lg:w-[50%] max-md:w-[80%] mt-5 ml-5">
           <Slider
             value={rating}
             onChange={(_, newRating: number[]) => { setRating(newRating) }}
@@ -111,7 +113,7 @@ export default function OtherFilters() {
         </div>
 
         <h2 className="text-[32px]">Opening Hours (24hr format)</h2>
-        <div className="w-[75%] mt-5 ml-5">
+        <div className="max-md:hidden w-[75%] mt-5 ml-5">
           <Slider
             value={openingHours}
             onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
@@ -119,6 +121,16 @@ export default function OtherFilters() {
             max={23}
             valueLabelDisplay="auto"
             marks={openingHourMarks}
+          />
+        </div>
+
+        <div className="lg:hidden w-[75%] mt-5 ml-5">
+          <Slider
+            value={openingHours}
+            onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
+            min={0}
+            max={23}
+            valueLabelDisplay="auto"
           />
         </div>
 

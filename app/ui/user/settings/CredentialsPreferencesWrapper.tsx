@@ -15,16 +15,16 @@ export default function CredentialsPreferencesWrapper({ email, placeTypes, prefe
 
   return (
     <>
-      <div className="flex items-center justify-between w-110">
+      <div className="flex max-md:flex-col items-center justify-start w-full">
         <button
-          className={`rounded-lg border border-mauve-300 ${currentPage === "Credentials" ? "bg-mauve-300" : "bg-transparent"}`}
+          className={`rounded-lg lg:mr-5 border border-mauve-300 ${currentPage === "Credentials" ? "bg-mauve-300" : "bg-transparent"}`}
           onClick={() => setCurrentPage("Credentials")}
         >
           Credentials
         </button>
 
         <button
-          className={`rounded-lg border border-mauve-300 ${currentPage === "Preferences" ? "bg-mauve-300" : "bg-transparent"}`}
+          className={`rounded-lg max-md:mt-5 border border-mauve-300 ${currentPage === "Preferences" ? "bg-mauve-300" : "bg-transparent"}`}
           onClick={() => setCurrentPage("Preferences")}
         >
           Preferences

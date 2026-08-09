@@ -10,27 +10,27 @@ export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRe
   const map = useMap();
 
   return (
-    <div className="grid grid-cols-2 bg-mauve-100 lg:w-[34vw] p-2 relative border-b-sky-400 border-b-3">
+    <div className="lg:grid lg:grid-cols-2 bg-mauve-100 lg:w-[34vw] p-2 relative border-b-sky-400 border-b-3">
       {/* Restaurant info */}
       <div className="flex flex-col items-start">
-        <p className="text-4xl font-medium">{place.displayName.text}</p>
-        <p className="text-2xl">{place.rating}</p>
+        <p className="text-4xl font-medium max-md:text-xl">{place.displayName.text}</p>
+        <p className="text-2xl max-md:text-[14px]">{place.rating} stars</p>
         <div className="flex justify-center">
-          <p className="text-2xl mr-5 capitalize text-nowrap">{getFormattedType(place)}</p>
-          <p className="text-2xl mr-5 text-nowrap">Price: {getFormattedPrice(place)}</p>
-          {place.currentOpeningHours &&
-            <p className={`${place.currentOpeningHours?.openNow ? "text-sky-600" : "text-rose-600"} text-2xl text-nowrap`}>
-              {place.currentOpeningHours?.openNow ? "Open" : "Closed"}
-            </p>
-          }
+          <p className="text-2xl max-md:text-[14px] mr-5 capitalize text-nowrap">{getFormattedType(place)}</p>
+          <p className="text-2xl max-md:text-[14px] mr-5 text-nowrap">Price: {getFormattedPrice(place)}</p>
         </div>
-        <p className="text-2xl">{place.formattedAddress}</p>
+        {place.currentOpeningHours &&
+          <p className={`${place.currentOpeningHours?.openNow ? "text-sky-600" : "text-rose-600"} text-2xl max-md:text-[14px] text-nowrap`}>
+            {place.currentOpeningHours?.openNow ? "Open" : "Closed"}
+          </p>
+        }
+        <p className="text-2xl max-md:text-[14px]">{place.formattedAddress}</p>
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-end items-start pr-6">
+      <div className="flex justify-end items-start pr-3">
         <button
-          className="bg-sky-300 rounded-full mr-4"
+          className="bg-sky-300 rounded-full mr-3 lg:p-3 max-md:mt-2"
           onClick={() => {
             map?.setCenter({ lat: place.location.latitude, lng: place.location.longitude });
           }}
@@ -48,7 +48,7 @@ export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRe
 
         {/* Show the option to save or unsave a restaurant depending on if it's already saved */}
         {savedRestaurants.map(restaurant => restaurant.id).includes(place.id) ? (
-          <button className="bg-sky-500 rounded-full" onClick={async () => { await removeSavedRestaurant(place.id) }}>
+          <button className="bg-sky-500 rounded-full lg:p-3 max-md:mt-2" onClick={async () => { await removeSavedRestaurant(place.id) }}>
             <Image
               src="/icons/unsave.png"
               alt="Unsave restaurant"
@@ -57,7 +57,7 @@ export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRe
             />
           </button>
         ) : (
-          <button className="bg-sky-300 rounded-full" onClick={async () => { await addSavedRestaurant(place.id) }}>
+          <button className="bg-sky-300 rounded-full lg:p-3 max-md:mt-2" onClick={async () => { await addSavedRestaurant(place.id) }}>
             <Image
               src="/icons/save.png"
               alt="Save restaurant"
@@ -69,7 +69,7 @@ export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRe
       </div>
 
       {/* Icons */}
-      <div className="absolute bottom-0 right-6 grid grid-cols-2">
+      <div className="absolute bottom-0 right-6 grid grid-cols-2 max-md:hidden">
         {
           place.paymentOptions?.acceptsCashOnly &&
           <Image

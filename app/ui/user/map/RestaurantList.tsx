@@ -15,16 +15,18 @@ export default function RestaurantList(
     }
 ) {
   return (
-    <div className="flex flex-col max-h-screen overflow-y-auto overflow-x-hidden scrollbar-none">
+    <div className="flex flex-col max-h-screen overflow-y-auto overflow-x-hidden scrollbar-none lg:w-[34vw]">
       <RestaurantHeader filtersActive={filtersActive} />
-      {places.length > 0 ?
-        (
-          places.map(place => (
-            <RestaurantMapEntry key={place.id} place={place} savedRestaurants={savedRestaurants} setSavedRestaurants={setSavedRestaurants} />
-          ))
-        ) : (
-          <NoPlacesFound filtersActive={filtersActive} preference={preference} />
-        )}
+      <div className="max-md:flex max-md:overflow-x-auto">
+        {places.length > 0 ?
+          (
+            places.map(place => (
+              <RestaurantMapEntry key={place.id} place={place} savedRestaurants={savedRestaurants} setSavedRestaurants={setSavedRestaurants} />
+            ))
+          ) : (
+            <NoPlacesFound filtersActive={filtersActive} preference={preference} />
+          )}
+      </div>
     </div>
   );
 }

@@ -47,7 +47,7 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
   return (
     <div>
       <h2 className="font-semibold text-[32px] my-5">Place Types</h2>
-      <div className="grid grid-cols-5 gap-3 capitalize">
+      <div className="grid lg:grid-cols-5 lg:gap-3 max-md:grid-cols-1 capitalize">
         {
           placeChipData.map((data) =>
             data.selected ? (
@@ -70,7 +70,7 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
       </div>
 
       <h2 className="font-semibold text-[32px] my-5">Minimum Rating</h2>
-      <div className="mt-5 ml-5">
+      <div className="mt-5 lg:ml-5 max-md:w-[85%]">
         <Slider
           getAriaLabel={() => "Select minimum rating"}
           value={minRating}
@@ -84,7 +84,7 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
       </div>
 
       <h2 className="font-semibold text-[32px] my-5">Opening Hours</h2>
-      <div className="mt-5 ml-5">
+      <div className="max-md:hidden mt-5 lg:ml-5">
         <Slider
           value={openingHours}
           onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
@@ -94,26 +94,36 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
           marks={openingHourMarks}
         />
       </div>
+      {/* Do not show the hour marks if the screen is too small */}
+      <div className="lg:hidden mt-5 lg:ml-5 max-md:w-[85%]">
+        <Slider
+          value={openingHours}
+          onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
+          min={0}
+          max={23}
+          valueLabelDisplay="auto"
+        />
+      </div>
 
       <h2 className="font-semibold text-[32px] my-5">Price Level</h2>
-      <div className="flex justify-evenly items-center">
+      <div className="flex justify-evenly lg:items-center max-md:flex-col">
         <button
-          className={`${priceLevels.includes("PRICE_LEVEL_INEXPENSIVE") ? "bg-sky-500" : "bg-sky-300"}`}
+          className={`${priceLevels.includes("PRICE_LEVEL_INEXPENSIVE") ? "bg-sky-500" : "bg-sky-300"} max-md:mt-3`}
           onClick={() => { priceLevels.includes("PRICE_LEVEL_INEXPENSIVE") ? removePriceLevel("PRICE_LEVEL_INEXPENSIVE") : addPriceLevel("PRICE_LEVEL_INEXPENSIVE") }}>
           Low
         </button>
         <button
-          className={`${priceLevels.includes("PRICE_LEVEL_MODERATE") ? "bg-sky-500" : "bg-sky-300"}`}
+          className={`${priceLevels.includes("PRICE_LEVEL_MODERATE") ? "bg-sky-500" : "bg-sky-300"} max-md:mt-3`}
           onClick={() => { priceLevels.includes("PRICE_LEVEL_MODERATE") ? removePriceLevel("PRICE_LEVEL_MODERATE") : addPriceLevel("PRICE_LEVEL_MODERATE") }}>
           Medium
         </button>
         <button
-          className={`${priceLevels.includes("PRICE_LEVEL_EXPENSIVE") ? "bg-sky-500" : "bg-sky-300"}`}
+          className={`${priceLevels.includes("PRICE_LEVEL_EXPENSIVE") ? "bg-sky-500" : "bg-sky-300"} max-md:mt-3`}
           onClick={() => { priceLevels.includes("PRICE_LEVEL_EXPENSIVE") ? removePriceLevel("PRICE_LEVEL_EXPENSIVE") : addPriceLevel("PRICE_LEVEL_EXPENSIVE") }}>
           Expensive
         </button>
         <button
-          className={`${priceLevels.includes("PRICE_LEVEL_VERY_EXPENSIVE") ? "bg-sky-500" : "bg-sky-300"}`}
+          className={`${priceLevels.includes("PRICE_LEVEL_VERY_EXPENSIVE") ? "bg-sky-500" : "bg-sky-300"} max-md:mt-3`}
           onClick={() => { priceLevels.includes("PRICE_LEVEL_VERY_EXPENSIVE") ? removePriceLevel("PRICE_LEVEL_VERY_EXPENSIVE") : addPriceLevel("PRICE_LEVEL_VERY_EXPENSIVE") }}>
           Very Expensive
         </button>
@@ -121,7 +131,7 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
 
 
       <h2 className="font-semibold text-[32px] my-5">Amenities</h2>
-      <div className="grid grid-cols-4 gap-5 capitalize">
+      <div className="lg:grid lg:grid-cols-4 lg:gap-5 capitalize">
         {
           amenityChipData.map((amenityChip) =>
             amenityChip.selected ? (

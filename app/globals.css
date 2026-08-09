@@ -14,3 +14,11 @@
     cursor: pointer;
   }
 }
+
+@theme {
+  --breakpoint-xs: 30rem;
+  --breakpoint-md: 55rem;
+  --breakpoint-lg: 80rem;
+  --breakpoint-2xl: 100rem;
+  --breakpoint-3xl: 120rem;
+}

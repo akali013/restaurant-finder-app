@@ -13,7 +13,7 @@ export default function RestaurantsWrapper() {
 
   return (
     <div className="px-10">
-      <h1 className="font-extrabold text-[80px]">Saved Restaurants</h1>
+      <h1 className="font-extrabold text-[80px] max-md:text-[35px] max-md:text-center">Saved Restaurants</h1>
       <SavedRestaurantList savedRestaurants={savedRestaurants} onRemove={removeSavedRestaurant} />
     </div>
   );
