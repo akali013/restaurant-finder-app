@@ -87,14 +87,16 @@ export default function RestaurantWrapper({ listType, miles, placeTypes, priceLe
         onLoad={() => console.log("Maps API has loaded.")}
         onError={() => { throw new Error("Cannot load Maps API.") }}  // This will load /map/error.tsx  
       >
-        <RestaurantList
-          places={locations}
-          filtersActive={filtersActive}
-          savedRestaurants={savedRestaurants}
-          setSavedRestaurants={setSavedRestaurants}
-          preference={preference}
-        />
-        <RestaurantMap userLocation={userLocation} meters={convertMilesToMeters(miles)} places={locations} />
+        <div className="w-[calc(100%)] flex max-md:flex-col h-screen">
+          <RestaurantList
+            places={locations}
+            filtersActive={filtersActive}
+            savedRestaurants={savedRestaurants}
+            setSavedRestaurants={setSavedRestaurants}
+            preference={preference}
+          />
+          <RestaurantMap userLocation={userLocation} meters={convertMilesToMeters(miles)} places={locations} />
+        </div>
       </APIProvider>
     </>
   );

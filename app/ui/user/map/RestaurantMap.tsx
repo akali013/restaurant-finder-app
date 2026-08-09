@@ -18,7 +18,7 @@ export default function RestaurantMap({ userLocation, meters, places }: {
           defaultZoom={defaultZoom}
           defaultCenter={userLocation}
           mapId="DEMO_MAP_ID"   // Enables advanced markers
-          className="h-screen w-[66vw]"
+          className="md:w-full flex-2"
         >
           {meters > 0 &&
             <Circle

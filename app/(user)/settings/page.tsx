@@ -5,8 +5,8 @@ import SettingsLoadingPage from "./loading";
 export default async function SettingsPage() {
 
   return (
-    <div className="px-10 pb-10">
-      <h1 className="font-extrabold text-[80px]">
+    <div className="px-5 pb-10">
+      <h1 className="font-extrabold text-[80px] max-md:text-[50px] max-md:text-center">
         Settings
       </h1>
 

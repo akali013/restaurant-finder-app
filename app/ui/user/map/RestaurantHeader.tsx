@@ -32,22 +32,22 @@ export default function RestaurantHeader({ filtersActive }: { filtersActive: boo
   }
 
   return (
-    <div className="flex flex-col items-center bg-mauve-300 lg:w-[34vw] lg:pr-5">
+    <div className="flex flex-col items-center bg-mauve-300 w-full">
       {/* Restaurant option buttons */}
       <div className="flex justify-center mt-2">
-        <button className={`${listType === "All" ? "bg-sky-400" : "bg-sky-200"} sm:text-[15px] lg:text-[24px] mr-5`} onClick={() => {
+        <button className={`${listType === "All" ? "bg-sky-400" : "bg-sky-200"} text-[18px] lg:text-[20px] max-md:text-[12px] lg:mr-5`} onClick={() => {
           searchParams.set("listType", "All");
           replace(`${pathname}?${searchParams.toString()}`);
         }}>
-          All Restaurants
+          All
         </button>
-        <button className={`${listType === "Saved" ? "bg-sky-400" : "bg-sky-200"} sm:text-[15px] lg:text-[24px] mr-5`} onClick={() => {
+        <button className={`${listType === "Saved" ? "bg-sky-400" : "bg-sky-200"} text-[18px] lg:text-[20px] max-md:text-[12px] lg:mr-5`} onClick={() => {
           searchParams.set("listType", "Saved");
           replace(`${pathname}?${searchParams.toString()}`);
         }}>
           Saved
         </button>
-        <button className={`${listType === "Recommended" ? "bg-sky-400" : "bg-sky-200"} sm:text-[15px] lg:text-[24px]`} onClick={() => {
+        <button className={`${listType === "Recommended" ? "bg-sky-400" : "bg-sky-200"} text-[18px] lg:text-[20px] max-md:text-[12px]`} onClick={() => {
           searchParams.set("listType", "Recommended");
           replace(`${pathname}?${searchParams.toString()}`);
         }}>
@@ -61,7 +61,7 @@ export default function RestaurantHeader({ filtersActive }: { filtersActive: boo
 
         {filtersActive &&
           <button
-            className="bg-rose-300 text-[20px] text-nowrap ml-5 flex justify-center items-center"
+            className="bg-rose-300 text-nowrap ml-5 flex justify-center items-center text-[15px] lg:text-[20px]"
             onClick={clearFilters}
           >
             <Image
@@ -78,7 +78,7 @@ export default function RestaurantHeader({ filtersActive }: { filtersActive: boo
       {/* Filter buttons */}
       <div className="flex justify-center mt-5 mb-2 relative">
         <button
-          className={`${miles !== 0 ? "bg-sky-400" : "bg-sky-200"} flex justify-center items-center mr-5`}
+          className={`${miles !== 0 ? "bg-sky-400" : "bg-sky-200"} flex justify-between items-center mr-2 lg:mr-5`}
           onClick={() => currentFilter === "Distance" ? setCurrentFilter("") : setCurrentFilter("Distance")}
         >
           <Image
@@ -86,26 +86,24 @@ export default function RestaurantHeader({ filtersActive }: { filtersActive: boo
             alt="Filter by distance"
             width={30}
             height={30}
-            className="mr-3"
           />
-          <span className="text-lg text-nowrap">Filter by distance</span>
+          <span className="max-sm:hidden text-[16px] lg:text-[18px]">Filter distance</span>
         </button>
         <button
-          className={`${priceLevel ? "bg-sky-400" : "bg-sky-200"} flex justify-center items-center mr-5`}
+          className={`${priceLevel ? "bg-sky-400" : "bg-sky-200"} flex justify-between items-center mr-2 lg:mr-5`}
           onClick={() => currentFilter === "Price" ? setCurrentFilter("") : setCurrentFilter("Price")}>
           <Image
             src="/icons/price.png"
             alt="Filter by price"
             width={30}
             height={30}
-            className="mr-3"
           />
-          <span className="text-lg text-nowrap">Filter by price</span>
+          <span className="max-sm:hidden text-[16px] lg:text-[18px]">Filter price</span>
         </button>
         {/* Group other filters button and dialog into one component to keep a ref in one component */}
         <OtherFilters />
 
-        <div className="absolute left-0 right-0 -bottom-20 z-1 bg-mauve-400">
+        <div className="absolute max-md:-left-10 max-md:-right-10 lg:left-0 lg:right-0 -bottom-20 z-1 bg-mauve-400">
           {currentFilter === "Price" &&
             <PriceFilterTab
               onClick={(priceLevel: GooglePriceLevel) => {
@@ -113,7 +111,7 @@ export default function RestaurantHeader({ filtersActive }: { filtersActive: boo
                 setCurrentFilter("");
                 replace(`${pathname}?${searchParams.toString()}`);
               }}
-              priceLevel={priceLevel} 
+              priceLevel={priceLevel}
             />}
 
           {currentFilter === "Distance" &&

@@ -18,7 +18,7 @@ export default function RestaurantSearchBar() {
       <input
         id="restaurant-search-bar"
         name="restaurant-search-bar"
-        className="bg-transparent rounded-4xl focus:outline-2 text-2xl w-full py-2 px-10"
+        className="bg-transparent rounded-4xl focus:outline-2 text-2xl w-full py-2 px-10 max-md:text-[12px]"
         placeholder="Search restaurants..."
         value={query}
         onChange={e => setQuery(e.target.value)}

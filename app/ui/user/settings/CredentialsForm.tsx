@@ -7,8 +7,8 @@ export default function CredentialsForm({ email }: { email: string }) {
   const [editingCreds, setEditingCreds] = useState(false);
 
   return (
-    <form className="flex justify-between mt-20" action={changeCredentials}>
-      <div className="flex flex-col w-[60%] mr-5">
+    <form className="flex max-md:flex-col justify-evenly items-center mt-20" action={changeCredentials}>
+      <div className="flex flex-col md:mr-5 w-full">
         <label className="sr-only" htmlFor="settings-email">
           Email
         </label>
@@ -18,7 +18,7 @@ export default function CredentialsForm({ email }: { email: string }) {
           type="email"
           placeholder="Email"
           defaultValue={email}
-          className="mb-15 p-2 disabled:opacity-80 disabled:cursor-not-allowed" disabled={!editingCreds}
+          className="mb-15 p-2 disabled:opacity-80 disabled:cursor-not-allowed max-md:text-[15px]" disabled={!editingCreds}
         />
 
         <label className="sr-only" htmlFor="settings-password">
@@ -29,12 +29,12 @@ export default function CredentialsForm({ email }: { email: string }) {
           name="settings-password"
           type="password"
           placeholder="Change Password"
-          className="p-2 disabled:opacity-80 disabled:cursor-not-allowed" disabled={!editingCreds}
+          className="p-2 disabled:opacity-80 disabled:cursor-not-allowed max-md:text-[15px]" disabled={!editingCreds}
         />
       </div>
 
       {editingCreds ? (
-        <div className="flex items-center justify-center mr-20">
+        <div className="flex items-center max-md:mt-10">
           <button className="bg-sky-300 p-5 mr-10" type="button" onClick={() => setEditingCreds(false)}>
             Cancel
           </button>
@@ -44,8 +44,8 @@ export default function CredentialsForm({ email }: { email: string }) {
           </button>
         </div>
       ) : (
-        <div className="flex items-center mr-20">
-          <button className="bg-sky-300 p-10" type="button" onClick={() => setEditingCreds(true)}>
+        <div className="flex items-center max-md:mt-10">
+          <button className="bg-sky-300 p-5" type="button" onClick={() => setEditingCreds(true)}>
             Change Credentials
           </button>
         </div>
