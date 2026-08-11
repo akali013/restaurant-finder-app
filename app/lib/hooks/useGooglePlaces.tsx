@@ -25,7 +25,6 @@ export default function useGooglePlaces(
       if (!ignore) {
         const response = await fetch(`/api/nearbySearch?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=${radius}&primaryTypes=${placeTypes}`);
         const data = await response.json() as MapsAPIResponse;
-        console.log(data);
         setLocations(data.places);
       }
     }

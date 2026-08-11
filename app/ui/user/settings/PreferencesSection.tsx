@@ -1,9 +1,10 @@
-import { ChipData, GooglePriceLevel, openingHourMarks, PlaceType, Preference } from "@/app/lib/data";
+import { ChipData, GooglePriceLevel, PopupMessageState, openingHourMarks, PlaceType, Preference } from "@/app/lib/data";
 import { useState } from "react";
 import Chip from "@mui/material/Chip";
 import { formatChipLabel } from "@/app/lib/placeFormatting";
 import Slider from "@mui/material/Slider";
 import { updatePreference } from "@/app/lib/actions";
+import PopupMessage from "../../message/popupMessage";
 
 export default function PreferencesSection({ placeTypes, preference, preferencePlaceTypes }:
   {
@@ -17,6 +18,7 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
   const [openingHours, setOpeningHours] = useState<number[]>(preference !== undefined ? [preference.starthour, preference.endhour] : [0, 23]);
   const [priceLevels, setPriceLevels] = useState<GooglePriceLevel[]>(getInitialPriceLevels());
   const [amenityChipData, setAmenityChipData] = useState<ChipData[]>(getInitialAmenities());
+  const [popupState, setPopupState] = useState<PopupMessageState>({});
 
   function removeSelectedPlaceChip(data: ChipData) {
     setPlaceChipData(placeChipData.map(chip => chip.key === data.key ? { ...chip, selected: false } : chip));
@@ -158,6 +160,8 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
           Save Preferences
         </button>
       </div>
+
+      {popupState.message && <PopupMessage key={popupState.popupKey} message={popupState.message} type="success" />}
     </div>
   );
 
@@ -184,6 +188,8 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
     };
 
     await updatePreference(preference, selectedPlaceIds);
+    // Set the popup key to a random number so the popup shows every time it is called via a resetted state
+    setPopupState({ message: "Preferences saved.", popupKey: Math.random() });
   }
 
   // Use the user's preferred place types to initially mark these types as selected
@@ -234,7 +240,6 @@ export default function PreferencesSection({ placeTypes, preference, preferenceP
     return preferredAmenities;
   }
 }
-
 
 const baseAmenityChipData: ChipData[] = [
   { key: 0, label: "Accepts Card", selected: false },

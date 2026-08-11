@@ -1,13 +1,16 @@
 "use client";
 
 import { changeCredentials } from "@/app/lib/actions";
-import { useState } from "react";
+import { useState, useActionState } from "react";
+import PopupMessage from "../../message/popupMessage";
+import { PopupMessageState } from "@/app/lib/data";
 
 export default function CredentialsForm({ email }: { email: string }) {
   const [editingCreds, setEditingCreds] = useState(false);
+  const [state, formAction] = useActionState(changeCredentials, {} as PopupMessageState);
 
   return (
-    <form className="flex max-md:flex-col justify-evenly items-center mt-20" action={changeCredentials}>
+    <form className="flex max-md:flex-col justify-evenly items-center mt-20" action={formAction}>
       <div className="flex flex-col md:mr-5 w-full">
         <label className="sr-only" htmlFor="settings-email">
           Email
@@ -50,6 +53,9 @@ export default function CredentialsForm({ email }: { email: string }) {
           </button>
         </div>
       )}
+
+      {state.error && <PopupMessage key={state.popupKey} message={state.error} type="error" />}
+      {state.message && <PopupMessage key={state.popupKey} message={state.message} type="success" />}
     </form>
   );
 }
