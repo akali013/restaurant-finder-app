@@ -105,6 +105,7 @@ export function applyFilters(
 
   // Filter by place types for the Text Search API results
   if (placeTypes && placeTypes.length > 0) {
+    console.log(placeTypes);
     const typeNames = placeTypes.map(type => type.name);
     filteredLocations = filteredLocations.filter(place => typeNames.includes(place.primaryType));
   }

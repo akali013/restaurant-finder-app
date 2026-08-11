@@ -136,6 +136,12 @@ export interface ChipData {
   selected: boolean;
 };
 
+export type PopupMessageState = {
+  error?: string,
+  message?: string,
+  popupKey?: number     // This allows each popup to be shown even if they have the same message
+};
+
 // Marks and labels for the opening hours slider
 export const openingHourMarks = [
   { value: 0, label: "12 AM" },

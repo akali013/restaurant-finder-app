@@ -26,9 +26,9 @@ export default function RestaurantWrapper({ listType, miles, placeTypes, priceLe
 }) {
   // Call hooks first since they can't be called conditionally
   const userLocation = useUserLocation();
-  const googleRestaurants = useGooglePlaces(userLocation, listType, miles, placeTypes);
+  const googleRestaurants = useGooglePlaces(userLocation, listType, miles, placeTypes, query);
   const [savedRestaurants, setSavedRestaurants] = useSavedRestaurants(listType);
-  const preferredRestaurants = useGooglePlaces(userLocation, listType, miles, preferencePlaceTypes);
+  const preferredRestaurants = useGooglePlaces(userLocation, listType, miles, preferencePlaceTypes, query);
 
   // Check if any filters are active 
   const filtersActive = miles != 0 ||
@@ -68,7 +68,7 @@ export default function RestaurantWrapper({ listType, miles, placeTypes, priceLe
       }
     }
     else {
-      filteredLocations = applyFilters(priceLevel, otherFilters, filteredLocations);
+      filteredLocations = applyFilters(priceLevel, otherFilters, filteredLocations, placeTypes);
     }
 
     return filteredLocations;
@@ -93,6 +93,7 @@ export default function RestaurantWrapper({ listType, miles, placeTypes, priceLe
             filtersActive={filtersActive}
             savedRestaurants={savedRestaurants}
             setSavedRestaurants={setSavedRestaurants}
+            listType={listType}
             preference={preference}
           />
           <RestaurantMap userLocation={userLocation} meters={convertMilesToMeters(miles)} places={locations} />

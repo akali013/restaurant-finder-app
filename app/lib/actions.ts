@@ -7,7 +7,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import postgres from "postgres";
 import { redirect } from "next/navigation";
-import { GooglePlace, PlaceType, Preference, Restaurant, User } from "@/app/lib/data";
+import { GooglePlace, PopupMessageState, PlaceType, Preference, Restaurant, User } from "@/app/lib/data";
 import { revalidatePath } from "next/cache";
 
 // Initialize postgres db
@@ -210,11 +210,21 @@ export async function getCredentials(): Promise<string> {
 }
 
 // Changes the current user's email and password 
-export async function changeCredentials(formData: FormData) {
-  const { email, password } = ChangeCredentialsSchema.parse({
+export async function changeCredentials(prevState: PopupMessageState, formData: FormData) {
+  const validatedFields = ChangeCredentialsSchema.safeParse({
     email: formData.get("settings-email"),
     password: formData.get("settings-password")
   });
+
+  if (!validatedFields.success) {
+    return { error: "An email and password are required.", popupKey: Math.random() };
+  }
+
+  const { email, password } = validatedFields.data;
+
+  if (password.length < 8) {
+    return { error: "Your password must be at least 8 characters long.", popupKey: Math.random() };
+  }
 
   const session = await auth();
 
@@ -234,11 +244,12 @@ export async function changeCredentials(formData: FormData) {
   }
   catch (error) {
     console.error(error);
-    console.error("Database Error: Failed to update credentials");
+    return { error: "Database Error: Failed to update credentials", popupKey: Math.random() };
   }
 
   revalidatePath("/settings");
-  redirect("/settings");
+  return { message: "Email and password successfully updated.", popupKey: Math.random() };
+  // redirect("/settings");
 }
 
 // Find the user with the entered email from the login page

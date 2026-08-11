@@ -1,16 +1,17 @@
-import { GooglePlace, Preference } from "@/app/lib/data";
+import { GooglePlace, ListFilterType, Preference } from "@/app/lib/data";
 import RestaurantHeader from "./RestaurantHeader";
 import RestaurantMapEntry from "./RestaurantMapEntry";
 import NoPlacesFound from "./NoPlacesFound";
 import { Dispatch, SetStateAction } from "react";
 
 export default function RestaurantList(
-  { places, filtersActive, savedRestaurants, setSavedRestaurants, preference }:
+  { places, filtersActive, savedRestaurants, setSavedRestaurants, listType, preference }:
     {
       places: GooglePlace[],
       filtersActive: boolean,
       savedRestaurants: GooglePlace[],
       setSavedRestaurants: Dispatch<SetStateAction<GooglePlace[]>>,
+      listType: ListFilterType,
       preference?: Preference
     }
 ) {
@@ -24,7 +25,7 @@ export default function RestaurantList(
               <RestaurantMapEntry key={place.id} place={place} savedRestaurants={savedRestaurants} setSavedRestaurants={setSavedRestaurants} />
             ))
           ) : (
-            <NoPlacesFound filtersActive={filtersActive} preference={preference} />
+            <NoPlacesFound filtersActive={filtersActive} listType={listType} preference={preference} />
           )}
       </div>
     </div>
