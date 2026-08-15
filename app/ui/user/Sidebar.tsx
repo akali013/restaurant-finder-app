@@ -54,6 +54,6 @@ export default function Sidebar() {
           />
         </button>
       </form>
-    </div >
+    </div>
   );
 }

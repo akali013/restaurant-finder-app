@@ -9,6 +9,7 @@ export type User = {
 export type Admin = {
   adminid: string;
   email: string;
+  password: string;
 };
 
 export type Restaurant = {

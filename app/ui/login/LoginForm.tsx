@@ -7,7 +7,6 @@ import { useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/map";
   // Form action that triggers the authenticate server action
   const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
 
@@ -30,7 +29,6 @@ export default function LoginForm() {
         type="password"
       />
 
-      <input type="hidden" name="redirectTo" value={callbackUrl} />
       <button className="w-2xs mb-5" aria-disabled={isPending}>
         Log in
       </button>

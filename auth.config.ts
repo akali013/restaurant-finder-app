@@ -6,21 +6,36 @@ export const authConfig = {
   },
   callbacks: {
     // Guard protected routes by checking if the user is logged in
-    authorized({ auth, request: { nextUrl } }) {
+    async authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
+      const role = auth?.user?.role;
 
-      // Redirect unauthenticated users to the login page if they're not logged in
-      const isOnMap = nextUrl.pathname.startsWith('/map');
-      const isOnSaved = nextUrl.pathname.startsWith("/saved");
-      const isOnSettings = nextUrl.pathname.startsWith("/settings");
+      // Allow unauthenticated users to create an account
+      if (nextUrl.pathname.startsWith("/signup") && !isLoggedIn) return true;
 
-      if (isOnMap || isOnSaved || isOnSettings) {
-        if (isLoggedIn) return true;    // Take authenticated users to their desired page
-        return false; // Redirect unauthenticated users to login page
-      } else if (isLoggedIn) {
-        return Response.redirect(new URL('/map', nextUrl));   // Take user to the map page by default
+      // Take unauthenticated users back to the login page
+      if (!isLoggedIn) return false;
+
+      if (nextUrl.pathname === "/") {
+        if (role === "admin") return Response.redirect(new URL("/users", nextUrl));
+        if (role === "user") return Response.redirect(new URL("/map", nextUrl));
       }
-      return true;
+
+      // Admins and users have their own set of pages they can access
+      const isAdminRoute = nextUrl.pathname.startsWith("/users") || nextUrl.pathname.startsWith("/adminSettings");
+      const isUserRoute = nextUrl.pathname.startsWith('/map')
+        || nextUrl.pathname.startsWith("/saved")
+        || nextUrl.pathname.startsWith("/settings");
+
+      if (role === "admin" && isAdminRoute) return true;
+      if (role === "user" && isUserRoute) return true;
+
+      // Restrict roles to their designated pages
+      if (role === "admin") return Response.redirect(new URL("/users", nextUrl));
+      if (role === "user") return Response.redirect(new URL("/map", nextUrl));
+
+
+      return false;
     },
   },
   providers: []

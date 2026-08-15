@@ -1,9 +1,9 @@
-import Sidebar from "@/app/ui/user/Sidebar";
+import AdminSidebar from "../ui/admin/AdminSidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Sidebar />
+      <AdminSidebar />
       <main className="ml-18.75">
         {children}
       </main>
