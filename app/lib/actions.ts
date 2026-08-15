@@ -7,7 +7,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import postgres from "postgres";
 import { redirect } from "next/navigation";
-import { GooglePlace, PopupMessageState, PlaceType, Preference, Restaurant, User } from "@/app/lib/data";
+import { GooglePlace, PopupMessageState, PlaceType, Preference, Restaurant, User, Admin } from "@/app/lib/data";
 import { revalidatePath } from "next/cache";
 
 // Initialize postgres db
@@ -24,12 +24,21 @@ const CreateAccountFormSchema = z.object({
   isBanned: z.boolean()
 });
 
+const EditAccountSchema = z.object({
+  id: z.string(),
+  email: z.email({ error: "A valid email is required" }).optional(),
+  password: z.string().optional(),
+  isBanned: z.boolean().optional()
+});
+
 const CreateAccountSchema = CreateAccountFormSchema.omit({ id: true, isBanned: true });
 const ChangeCredentialsSchema = CreateAccountFormSchema.omit({ id: true, retypePassword: true, isBanned: true });
+const EditUserSchema = EditAccountSchema.omit({ id: true, isBanned: true });
 
 export async function authenticate(prevState: string | undefined, formData: FormData) {
   try {
     await signIn("credentials", formData);    // Sign in with email and password credentials
+
   }
   catch (error) {
     if (error instanceof AuthError) {
@@ -184,7 +193,7 @@ export async function getSavedRestaurantIds() {
   }
 }
 
-// Gets the current user's email
+// Gets the current user's or admin's email
 export async function getCredentials(): Promise<string> {
   const session = await auth();
 
@@ -193,12 +202,23 @@ export async function getCredentials(): Promise<string> {
   }
 
   const userId = session.user.id;
+  const role = session.user.role;
 
   try {
-    const email = await sql`
+    let email;
+
+    if (role === "user") {
+      email = await sql`
       SELECT email FROM Users
       WHERE userId=${userId}
     `;
+    }
+    else {
+      email = await sql`
+        SELECT email FROM Admins
+        WHERE adminid=${userId}
+      `;
+    }
 
     return email[0].email.toString();
   }
@@ -209,7 +229,7 @@ export async function getCredentials(): Promise<string> {
   }
 }
 
-// Changes the current user's email and password 
+// Changes the current user's or admin's email and password 
 export async function changeCredentials(prevState: PopupMessageState, formData: FormData) {
   const validatedFields = ChangeCredentialsSchema.safeParse({
     email: formData.get("settings-email"),
@@ -228,19 +248,29 @@ export async function changeCredentials(prevState: PopupMessageState, formData: 
 
   const session = await auth();
 
-  if (!session?.user?.id) {
+  if (!session?.user?.id || !session?.user.role) {
     throw new Error("Unauthorized");
   }
 
+  const role = session.user.role;
   const userId = session.user.id;
   const hashedPassword = await bcrypt.hash(password, 12);
 
   try {
-    await sql`
-      UPDATE Users
-      SET email=${email}, password=${hashedPassword}
-      WHERE userId=${userId}
-    `;
+    if (role === "user") {
+      await sql`
+        UPDATE Users
+        SET email=${email}, password=${hashedPassword}
+        WHERE userId=${userId}
+      `;
+    }
+    else {
+      await sql`
+        UPDATE Admins
+        SET email=${email}, password=${hashedPassword}
+        WHERE adminid=${userId}
+      `;
+    }
   }
   catch (error) {
     console.error(error);
@@ -249,14 +279,16 @@ export async function changeCredentials(prevState: PopupMessageState, formData: 
 
   revalidatePath("/settings");
   return { message: "Email and password successfully updated.", popupKey: Math.random() };
-  // redirect("/settings");
 }
 
-// Find the user with the entered email from the login page
-export async function getUserFromEmail(email: string): Promise<User | undefined> {
+// Find the user or admin with the entered email from the login page
+export async function getAccountFromEmail(email: string): Promise<{ account: User | Admin, role: "user" | "admin" } | undefined> {
   try {
     const user = await sql<User[]>`SELECT * FROM Users WHERE email=${email}`;
-    return user[0];
+    if (user.length > 0) return { account: user[0] as User, role: "user" };
+
+    const admin = await sql<Admin[]>`SELECT * FROM Admins WHERE email=${email}`;
+    if (admin.length > 0) return { account: admin[0] as Admin, role: "admin" };
   }
   catch (error) {
     console.error("Failed to fetch user:", error);
@@ -279,6 +311,8 @@ export async function getPreferenceInfo(): Promise<{ preference?: Preference, pr
       SELECT * FROM Preferences
       WHERE userid = ${userId};
     `;
+
+    if (preference.length === 0) return {};
 
     const placeTypes = await sql`
       SELECT typeid, name FROM PlaceTypes p
@@ -383,5 +417,94 @@ export async function updatePreference(preference: Preference, placeTypeIds: num
   catch (error) {
     console.error("Database Error: Failed to update preference.");
     console.error(error);
+  }
+}
+
+// Gets users for the admin's users table
+export async function getUsers() {
+  try {
+    const users = await sql<User[]>`
+    SELECT * FROM Users;
+  `;
+
+    return users;
+  }
+  catch (error) {
+    console.log(error);
+    console.log("Database Error: Failed to get users.");
+    return [];
+  }
+}
+
+// Gets a user via their id
+export async function getUserById(userId: string): Promise<User | undefined> {
+  try {
+    const user = await sql`
+      SELECT * FROM Users
+      WHERE userid=${userId}
+    `;
+
+    return user[0] as User;
+  }
+  catch (error) {
+    console.error(error);
+    console.error("Database Error: Failed to get user");
+  }
+}
+
+// Edits the user's email, password, or ban status
+export async function editUser(userId: string, prevState: PopupMessageState, formData: FormData) {
+  try {
+    const parsedCredentials = EditUserSchema.safeParse({
+      email: formData.get("edit-user-email"),
+      password: formData.get("edit-user-password"),
+    });
+
+    if (!parsedCredentials.success) {
+      return {
+        error: "Something went wrong.",
+        popupKey: Math.random()
+      };
+    }
+
+    const { email, password } = parsedCredentials.data;
+    const isBanned = formData.get("edit-ban-status") === "on" || false;
+
+    if (email) {
+      if (!password) {
+        await sql`
+        UPDATE Users
+        SET email=${email}, isBanned=${isBanned}
+        WHERE userid=${userId}
+      `;
+      }
+      else {
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        await sql`
+          UPDATE Users
+          SET email=${email}, password=${hashedPassword}, isBanned=${isBanned}
+          WHERE userid=${userId}
+        `;
+      }
+    }
+    else {
+      await sql`
+        UPDATE Users
+        SET isBanned=${isBanned}
+        WHERE userid=${userId}
+      `;
+    }
+
+    return {
+      message: "User successfully edited.",
+      popupKey: Math.random()
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      error: "Database Error: Failed to edit user",
+      popupKey: Math.random()
+    };
   }
 }
