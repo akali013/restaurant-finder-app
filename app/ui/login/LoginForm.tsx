@@ -12,19 +12,19 @@ export default function LoginForm() {
 
   return (
     <form className="flex flex-col items-center" action={formAction}>
-      <h1 className="text-mauve-500 italic mt-[10vh] text-9xl mb-[3vh]">
+      <h1 className="text-mauve-500 italic mt-[10vh] text-5xl lg:text-9xl mb-[3vh]">
         GoodEats
       </h1>
       <input
         id="email"
         name="email"
-        className={`mb-20 w-2xl`}
+        className="mb-20 w-[90%]"
         placeholder="Email"
       />
       <input
         id="password"
         name="password"
-        className={`mb-20 w-2xl`}
+        className="mb-20 w-[90%]"
         placeholder="Password"
         type="password"
       />

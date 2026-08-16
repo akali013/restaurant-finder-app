@@ -4,7 +4,7 @@ import LoginForm from "./ui/login/LoginForm";
 
 export default function LoginPage() {
   return (
-    <div className="grid grid-cols-2">
+    <div className="lg:grid lg:grid-cols-2">
       <Suspense>
         <LoginForm />
       </Suspense>
