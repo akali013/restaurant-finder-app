@@ -1,6 +1,7 @@
 import SettingsWrapper from "@/app/ui/user/settings/SettingsWrapper";
 import { Suspense } from "react";
 import SettingsLoadingPage from "./loading";
+import { Metadata } from "next";
 
 export default async function SettingsPage() {
 
@@ -16,3 +17,7 @@ export default async function SettingsPage() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Settings"
+};

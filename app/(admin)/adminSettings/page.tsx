@@ -1,5 +1,6 @@
 import { getCredentials } from "@/app/lib/actions";
 import AdminCredentialsForm from "@/app/ui/admin/AdminCredentialsForm";
+import { Metadata } from "next";
 
 
 export default async function AdminSettingsPage() {
@@ -12,3 +13,7 @@ export default async function AdminSettingsPage() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Settings"
+};

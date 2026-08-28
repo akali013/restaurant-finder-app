@@ -1,6 +1,7 @@
 import "@/app/globals.css";
 import { rubik } from "@/app/ui/fonts";
 import QueryProvider from "./QueryProvider";
+import { Metadata } from "next";
 
 export default function RootLayout({
   children,
@@ -20,3 +21,19 @@ export default function RootLayout({
     </html>
   );
 }
+
+export const metadata: Metadata = {
+  title: {
+    template: "%s | Good Eats",
+    default: "Good Eats"
+  },
+  description: "Find all the best restaurants near you catered to your tastes!",
+  applicationName: "Good Eats",
+  keywords: ["Restaurants", "Food", "Map"],
+  openGraph: {
+    title: "Good Eats",
+    description: "Find all the best restaurants near you catered to your tastes!",
+    siteName: "Good Eats",
+    type: "website"
+  },
+};
