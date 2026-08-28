@@ -37,18 +37,21 @@ export default function RestaurantHeader({ filtersActive }: { filtersActive: boo
       <div className="flex justify-center mt-2">
         <button className={`${listType === "All" ? "bg-sky-400" : "bg-sky-200"} text-[18px] lg:text-[20px] max-md:text-[12px] lg:mr-5`} onClick={() => {
           searchParams.set("listType", "All");
+          searchParams.delete("query");
           replace(`${pathname}?${searchParams.toString()}`);
         }}>
           All
         </button>
         <button className={`${listType === "Saved" ? "bg-sky-400" : "bg-sky-200"} text-[18px] lg:text-[20px] max-md:text-[12px] lg:mr-5`} onClick={() => {
           searchParams.set("listType", "Saved");
+          searchParams.delete("query");
           replace(`${pathname}?${searchParams.toString()}`);
         }}>
           Saved
         </button>
         <button className={`${listType === "Recommended" ? "bg-sky-400" : "bg-sky-200"} text-[18px] lg:text-[20px] max-md:text-[12px]`} onClick={() => {
           searchParams.set("listType", "Recommended");
+          searchParams.delete("query");
           replace(`${pathname}?${searchParams.toString()}`);
         }}>
           Recommended

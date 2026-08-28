@@ -1,20 +1,18 @@
 "use client";
 
-import { GooglePriceLevel, ListFilterType, OtherFiltersType, PlaceType, Preference } from "@/app/lib/data";
-import useGooglePlaces from "@/app/lib/hooks/useGooglePlaces";
+import { getSavedRestaurants, GooglePlace, GooglePriceLevel, ListFilterType, MapsAPIResponse, OtherFiltersType, PlaceType, Preference } from "@/app/lib/data";
 import RestaurantList from "./RestaurantList";
 import RestaurantMap from "./RestaurantMap";
 import useUserLocation from "@/app/lib/hooks/useUserLocation";
 import { applyFilters, applyPreference } from "@/app/lib/placeFiltering";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { convertMilesToMeters } from "@/app/lib/placeFormatting";
-import MapPageSkeleton from "./MapPageSkeleton";
-import useSavedRestaurants from "@/app/lib/hooks/useSavedRestaurants";
 import { useMemo } from "react";
-
+import { useSuspenseQuery } from "@tanstack/react-query";
+import MapPageSkeleton from "./MapPageSkeleton";
 
 // Wrapper component that provides Google's Nearby Search API or Text Search API locations to the child Map components
-export default function RestaurantWrapper({ listType, miles, placeTypes, priceLevel, otherFilters, preference, preferencePlaceTypes, query }: {
+export default function RestaurantWrapper({ listType, miles, placeTypes, priceLevel, otherFilters, preference, preferencePlaceTypes, query, savedRestaurantIds }: {
   listType: ListFilterType,
   miles: number,
   placeTypes: PlaceType[],
@@ -22,13 +20,26 @@ export default function RestaurantWrapper({ listType, miles, placeTypes, priceLe
   otherFilters: OtherFiltersType,
   preference?: Preference,
   preferencePlaceTypes?: PlaceType[],
-  query?: string
+  query?: string,
+  savedRestaurantIds: string[]
 }) {
   // Call hooks first since they can't be called conditionally
   const userLocation = useUserLocation();
-  const googleRestaurants = useGooglePlaces(userLocation, listType, miles, placeTypes, query);
-  const [savedRestaurants, setSavedRestaurants] = useSavedRestaurants(listType);
-  const preferredRestaurants = useGooglePlaces(userLocation, listType, miles, preferencePlaceTypes, query);
+  const { data } = useSuspenseQuery({
+    queryKey: ["googleRestaurants", userLocation, miles, query, placeTypes, preferencePlaceTypes, listType, savedRestaurantIds],
+    queryFn: async () => {
+      // Call the Text Search API or the Nearby Search API based on if a user passes a query
+      if (query) return await getTextSearchRestaurants(userLocation, miles, query)
+
+      // Make different calls to the Google Maps API based on the list type
+      if (listType === "All") return await searchNearbyRestaurants(userLocation, miles, placeTypes);
+      if (listType === "Saved") return await getSavedRestaurants(savedRestaurantIds);
+      if (listType === "Recommended") return await searchNearbyRestaurants(userLocation, miles, preferencePlaceTypes);
+    },
+    staleTime: 60 * 1000 * 10
+  });
+
+  const googleRestaurants = data?.places;
 
   // Check if any filters are active 
   const filtersActive = miles != 0 ||
@@ -40,21 +51,7 @@ export default function RestaurantWrapper({ listType, miles, placeTypes, priceLe
 
   // useMemo is to cache the locations array so it does not change or redo filtering every render
   let locations = useMemo(() => {
-    let filteredLocations = [];
-
-    switch (listType) {
-      case "Saved": {
-        filteredLocations = savedRestaurants.slice();
-        break;
-      }
-      case "Recommended": {
-        filteredLocations = preferredRestaurants.slice();
-        break;
-      }
-      default: {
-        filteredLocations = googleRestaurants.slice();
-      }
-    }
+    let filteredLocations = googleRestaurants?.slice() || [];
 
     // This is used for filtering the locations based on the list type where
     // the user's preference is applied for the recommended section and generic filters
@@ -72,10 +69,9 @@ export default function RestaurantWrapper({ listType, miles, placeTypes, priceLe
     }
 
     return filteredLocations;
-  }, [listType, savedRestaurants, preferredRestaurants, googleRestaurants, filtersActive, otherFilters, placeTypes, preference, priceLevel]);
+  }, [listType, googleRestaurants, filtersActive, otherFilters, placeTypes, preference, priceLevel]);
 
-
-  // Render the map when the user's location is given and the locations are retrieved
+  // Do not load the page until the user's location is found
   if (userLocation.lat === 0 && userLocation.lng === 0) return <MapPageSkeleton />;
 
   return (
@@ -91,14 +87,34 @@ export default function RestaurantWrapper({ listType, miles, placeTypes, priceLe
           <RestaurantList
             places={locations}
             filtersActive={filtersActive}
-            savedRestaurants={savedRestaurants}
-            setSavedRestaurants={setSavedRestaurants}
+            savedRestaurantIds={savedRestaurantIds}
             listType={listType}
             preference={preference}
           />
+
           <RestaurantMap userLocation={userLocation} meters={convertMilesToMeters(miles)} places={locations} />
         </div>
       </APIProvider>
     </>
   );
+}
+
+// Get restaurants from the Nearby Search API
+async function searchNearbyRestaurants(userLocation: { lat: number, lng: number }, miles: number, primaryTypes?: PlaceType[]) {
+  if (userLocation.lat === 0 && userLocation.lng === 0) return null;
+
+  const radius = convertMilesToMeters(miles || 10);
+  const placeTypes = primaryTypes?.length! > 0 ? primaryTypes?.map(type => type.name) : ["restaurant"];
+  const response = await fetch(`/api/nearbySearch?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=${radius}&primaryTypes=${placeTypes}`);
+  const data = await response.json() as MapsAPIResponse;
+  return data;
+}
+
+// Get restaurants from the Text Search API
+async function getTextSearchRestaurants(userLocation: { lat: number, lng: number }, radius: number, query: string) {
+  if (userLocation.lat === 0 && userLocation.lng === 0) return null;
+
+  const response = await fetch(`/api/textSearch?query=${query}&lat=${userLocation.lat}&lng=${userLocation.lng}&radius=${radius}`);
+  const data = await response.json() as MapsAPIResponse;
+  return data;
 }

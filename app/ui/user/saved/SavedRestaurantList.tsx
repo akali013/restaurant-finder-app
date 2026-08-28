@@ -1,8 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import { GooglePlace } from "@/app/lib/data";
 import { getFormattedType } from "@/app/lib/placeFormatting";
+import { saveRestaurant, unsaveRestaurant } from "@/app/lib/actions";
+import { useState } from "react";
 
-export default function SavedRestaurantList({ savedRestaurants, onRemove }: { savedRestaurants: GooglePlace[], onRemove: (placeId: string) => Promise<void> }) {
+export default function SavedRestaurantList({ savedRestaurants }: { savedRestaurants: GooglePlace[] }) {
+  const [saved, setSaved] = useState(true);
+
   return (
     <ul>
       {savedRestaurants.map(place => (
@@ -18,14 +24,26 @@ export default function SavedRestaurantList({ savedRestaurants, onRemove }: { sa
               </div>
             </div>
 
-            <button className="bg-sky-200 lg:p-5 rounded-full" onClick={async () => { await onRemove(place.id) }}>
-              <Image
-                src="/icons/unsave.png"
-                alt={`Unsave ${place.displayName.text}`}
-                width={40}
-                height={40}
-              />
-            </button>
+            {saved ? (
+              <button className="bg-sky-200 lg:p-5 rounded-full" onClick={async () => { await unsaveRestaurant(place.id); setSaved(false); }}>
+                <Image
+                  src="/icons/unsave.png"
+                  alt={`Unsave ${place.displayName.text}`}
+                  width={40}
+                  height={40}
+                />
+              </button>
+            ) : (
+              <button className="bg-sky-300 lg:p-5 rounded-full" onClick={async () => { await saveRestaurant(place.id); setSaved(true); }}>
+                <Image
+                  src="/icons/save.png"
+                  alt={`Save ${place.displayName.text}`}
+                  width={40}
+                  height={40}
+                />
+              </button>
+            )}
+
           </div>
         </li>
       ))}
