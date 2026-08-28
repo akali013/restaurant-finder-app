@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import ImageScroller from "./ui/login/ImageScroller";
 import LoginForm from "./ui/login/LoginForm";
+import { Metadata } from "next";
 
 export default function LoginPage() {
   return (
@@ -12,3 +13,7 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Login"
+};

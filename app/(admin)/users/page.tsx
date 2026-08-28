@@ -1,5 +1,6 @@
 import { getUsers } from "@/app/lib/actions";
 import UsersTable from "@/app/ui/admin/UsersTable";
+import { Metadata } from "next";
 
 export default async function UsersPage() {
   const users = await getUsers();
@@ -12,3 +13,7 @@ export default async function UsersPage() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Users"
+};

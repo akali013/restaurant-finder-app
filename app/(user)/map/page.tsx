@@ -1,5 +1,6 @@
 import MapInfoWrapper from "@/app/ui/user/map/MapInfoWrapper";
 import { GooglePriceLevel, ListFilterType } from "../../lib/data";
+import { Metadata } from "next";
 
 export default async function MapPage(props: {
   searchParams?: Promise<{
@@ -39,4 +40,6 @@ export default async function MapPage(props: {
   );
 }
 
-
+export const metadata: Metadata = {
+  title: "Restaurant Map"
+};

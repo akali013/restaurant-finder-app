@@ -1,5 +1,6 @@
 import { getUserById } from "@/app/lib/actions";
 import EditUserForm from "@/app/ui/admin/EditUserForm";
+import { Metadata } from "next";
 
 export default async function EditUserPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -15,3 +16,7 @@ export default async function EditUserPage(props: { params: Promise<{ id: string
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Edit User"
+};
