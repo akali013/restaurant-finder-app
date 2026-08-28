@@ -1,4 +1,4 @@
-import { getPreferenceInfo } from "@/app/lib/actions";
+import { getPreferenceInfo, getSavedRestaurantIds } from "@/app/lib/actions";
 import RestaurantWrapper from "./RestaurantWrapper";
 import { GooglePriceLevel, ListFilterType, OtherFiltersType, PlaceType } from "@/app/lib/data";
 
@@ -14,6 +14,7 @@ export default async function MapInfoWrapper({ query, listType, miles, placeType
   }
 ) {
   const preferenceInfo = await getPreferenceInfo();
+  const savedRestaurantIds = await getSavedRestaurantIds();
 
   return (
     <RestaurantWrapper
@@ -25,6 +26,7 @@ export default async function MapInfoWrapper({ query, listType, miles, placeType
       preference={preferenceInfo.preference}
       preferencePlaceTypes={preferenceInfo.preferencePlaceTypes}
       query={query}
+      savedRestaurantIds={savedRestaurantIds.map(obj => obj.restaurantid)}
     />
   );
 }

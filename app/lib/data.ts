@@ -1,3 +1,5 @@
+import { getPlaceDetails } from "../api/placeDetails/route";
+
 // All the database and API types are defined here
 export type User = {
   userid: string;
@@ -170,3 +172,15 @@ export const openingHourMarks = [
   { value: 22, label: "10 PM" },
   { value: 23, label: "11 PM" }
 ];
+
+// Get the user's saved restaurants from the db
+export async function getSavedRestaurants(savedRestaurantIds: string[]) {
+  const placeDetails: GooglePlace[] = await Promise.all(
+    savedRestaurantIds.map<Promise<GooglePlace>>(async (restaurantId) => {
+      const data = await getPlaceDetails(restaurantId);
+      return data as GooglePlace;
+    })
+  );
+
+  return { places: placeDetails };
+}

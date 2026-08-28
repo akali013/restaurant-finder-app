@@ -5,10 +5,11 @@ import { useRef, useState } from "react";
 import Chip from "@mui/material/Chip";
 import { Slider } from "@mui/material";
 import { ChipData, openingHourMarks, OtherFiltersType, PlaceType } from "@/app/lib/data";
-import { usePlaceTypes } from "@/app/lib/hooks/usePlaceTypes";
 import { useSearchParams, usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { formatChipLabel } from "@/app/lib/placeFormatting";
+import { useQuery } from "@tanstack/react-query";
+import { getPlaceTypes } from "@/app/lib/actions";
 
 export default function OtherFilters() {
   const dialogRef = useRef<HTMLDialogElement>(null);    // References the dialog so it can be opened and closed with browser methods
@@ -20,7 +21,22 @@ export default function OtherFilters() {
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  usePlaceTypes(setPlaceChipData);    // Get place types from postgres db
+  // Get place types from the postgres db
+  useQuery({
+    queryKey: ["placeTypes"],
+    queryFn: async () => {
+      const placeTypes = await getPlaceTypes();
+      setPlaceChipData(placeTypes.map((placeType: PlaceType) => {
+        return {
+          key: placeType.typeid,
+          label: placeType.name,
+          selected: false
+        };
+      }));
+
+      return placeTypes;
+    }
+  });
 
   // Handles selecting and unselecting chips for the place types and amenities 
 

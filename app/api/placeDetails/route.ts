@@ -6,7 +6,12 @@ export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
 
   const placeId = searchParams.get("placeId");
+  const placeJSON = getPlaceDetails(placeId);
 
+  return NextResponse.json(placeJSON);
+}
+
+export async function getPlaceDetails(placeId: string | null) {
   const response = await fetch(
     `https://places.googleapis.com/v1/places/${placeId}`,
     {
@@ -20,13 +25,12 @@ export async function GET(req: NextRequest) {
 
   if (!response.ok) {
     console.error(await response.text());
-    return NextResponse.json({
+    console.error({
       error: "Place Details API request failed",
       status: response.status
     });
   }
 
   const placeJSON = await response.json() as GooglePlace;
-
-  return NextResponse.json(placeJSON);
+  return placeJSON;
 }

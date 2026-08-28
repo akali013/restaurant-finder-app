@@ -1,13 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import RestaurantDetails from "@/app/ui/user/map/RestaurantDetails";
 import { GooglePlace } from "@/app/lib/data";
 import { useMap } from "@vis.gl/react-google-maps";
 import { getFormattedPrice, getFormattedType } from "@/app/lib/placeFormatting";
 import { saveRestaurant, unsaveRestaurant } from "@/app/lib/actions";
-import { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 
-export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRestaurants }: { place: GooglePlace, savedRestaurants: GooglePlace[], setSavedRestaurants: Dispatch<SetStateAction<GooglePlace[]>> }) {
+export default function RestaurantMapEntry({ place, savedRestaurantIds }: { place: GooglePlace, savedRestaurantIds: string[] }) {
   const map = useMap();
+  const [saved, setSaved] = useState(savedRestaurantIds.includes(place.id));
 
   return (
     <div className="lg:grid lg:grid-cols-2 bg-mauve-100 lg:w-[34vw] p-2 relative border-b-sky-400 border-b-3">
@@ -47,8 +50,8 @@ export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRe
         <RestaurantDetails place={place} />
 
         {/* Show the option to save or unsave a restaurant depending on if it's already saved */}
-        {savedRestaurants.map(restaurant => restaurant.id).includes(place.id) ? (
-          <button className="bg-sky-500 rounded-full lg:p-3 max-md:mt-2" onClick={async () => { await removeSavedRestaurant(place.id) }}>
+        {saved ? (
+          <button className="bg-sky-500 rounded-full lg:p-3 max-md:mt-2" onClick={async () => { await unsaveRestaurant(place.id); setSaved(false);}}>
             <Image
               src="/icons/unsave.png"
               alt="Unsave restaurant"
@@ -57,7 +60,7 @@ export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRe
             />
           </button>
         ) : (
-          <button className="bg-sky-300 rounded-full lg:p-3 max-md:mt-2" onClick={async () => { await addSavedRestaurant(place.id) }}>
+          <button className="bg-sky-300 rounded-full lg:p-3 max-md:mt-2" onClick={async () => { await saveRestaurant(place.id); setSaved(true); }}>
             <Image
               src="/icons/save.png"
               alt="Save restaurant"
@@ -109,26 +112,5 @@ export default function RestaurantMapEntry({ place, savedRestaurants, setSavedRe
       </div>
     </div>
   );
-
-  // Saves the specified restaurant in the client and database
-  async function addSavedRestaurant(placeId: string) {
-    await saveRestaurant(placeId);
-    const response = await fetch(`/api/placeDetails?placeId=${placeId}`);
-    const savedRestaurant = await response.json() as GooglePlace;
-
-    let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
-    savedRestaurants.push(savedRestaurant!);
-    localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
-    setSavedRestaurants(savedRestaurants);
-  }
-
-  // Removes the specified restaurant from the client and database
-  async function removeSavedRestaurant(placeId: string) {
-    let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
-    savedRestaurants = savedRestaurants.filter((place: GooglePlace) => place.id !== placeId);
-    localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
-    await unsaveRestaurant(placeId);
-    setSavedRestaurants(savedRestaurants);
-  }
 }
 

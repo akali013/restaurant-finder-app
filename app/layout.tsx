@@ -1,5 +1,6 @@
 import "@/app/globals.css";
 import { rubik } from "@/app/ui/fonts";
+import QueryProvider from "./QueryProvider";
 
 export default function RootLayout({
   children,
@@ -13,7 +14,9 @@ export default function RootLayout({
     >
       {/* For responsive design */}
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <body>{children}</body>
+      <body>
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }

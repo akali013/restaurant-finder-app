@@ -1,31 +1,20 @@
-"use client";
-
-import { unsaveRestaurant } from "@/app/lib/actions";
-import { GooglePlace } from "@/app/lib/data";
-import useSavedRestaurants from "@/app/lib/hooks/useSavedRestaurants";
+import { getSavedRestaurantIds, unsaveRestaurant } from "@/app/lib/actions";
 import NoSavedRestaurants from "./NoSavedRestaurants";
 import SavedRestaurantList from "./SavedRestaurantList";
+import { getSavedRestaurants } from "@/app/lib/data";
 
-export default function RestaurantsWrapper() {
-  const [savedRestaurants, setSavedRestaurants] = useSavedRestaurants("Saved");
+export default async function RestaurantsWrapper() {
+  const savedRestaurantIds = await getSavedRestaurantIds();
+  if (savedRestaurantIds.length === 0) return <NoSavedRestaurants />
+  const savedRestaurants = (await getSavedRestaurants(savedRestaurantIds.map(obj => obj.restaurantid))).places;
 
-  if (savedRestaurants.length === 0) return <NoSavedRestaurants />
 
   return (
     <div className="px-10">
       <h1 className="font-extrabold text-[80px] max-md:text-[35px] max-md:text-center">Saved Restaurants</h1>
-      <SavedRestaurantList savedRestaurants={savedRestaurants} onRemove={removeSavedRestaurant} />
+      <SavedRestaurantList savedRestaurants={savedRestaurants} />
     </div>
   );
-
-  // Removes the specified restaurant from the client and database
-  async function removeSavedRestaurant(placeId: string) {
-    let savedRestaurants = JSON.parse(localStorage.getItem("savedRestaurants") || "{}") as GooglePlace[];
-    savedRestaurants = savedRestaurants.filter((place: GooglePlace) => place.id !== placeId);
-    setSavedRestaurants(savedRestaurants);
-    localStorage.setItem("savedRestaurants", JSON.stringify(savedRestaurants));
-    await unsaveRestaurant(placeId);
-  }
 }
 
 
