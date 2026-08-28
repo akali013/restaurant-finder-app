@@ -22,7 +22,7 @@ export default function OtherFilters() {
   const { replace } = useRouter();
 
   // Get place types from the postgres db
-  useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ["placeTypes"],
     queryFn: async () => {
       const placeTypes = await getPlaceTypes();
@@ -79,106 +79,119 @@ export default function OtherFilters() {
         <span className="max-sm:hidden text-[16px] lg:text-[18px]">Other filters</span>
       </button>
 
-      <dialog
-        ref={dialogRef}
-        closedby="any"
-        className="absolute w-[90vw] h-[90vh] bg-mauve-200 p-5 lg:left-15 lg:right-15 max-md:left-5 max-md:right-5 top-5 lg:bottom-5 backdrop:backdrop-blur-sm"
-      >
-        <h1 className="text-[64px] font-bold max-md:text-[50px]">Other Filters</h1>
-        <button className="absolute top-10 right-10 p-3 rounded-full" onClick={() => dialogRef.current?.close()}>
+      {isFetching ? (
+        <div className="flex items-center justify-center pl-70">
           <Image
-            src="/icons/close.png"
-            alt="Close other filters"
-            width={50}
-            height={50}
+            src="/icons/loading.png"
+            alt="Loading filters..."
+            width={35}
+            height={35}
+            className="animate-spin"
           />
-        </button>
-
-        <h2 className="text-[32px]">Restaurant Type</h2>
-        <div className="grid lg:grid-cols-5 sm:grid-cols-2 gap-3 capitalize">
-          {
-            placeChipData.map((data: ChipData) =>
-              data.selected ? (
-                <Chip
-                  key={data.key}
-                  label={formatChipLabel(data.label)}
-                  onDelete={() => { removeSelectedPlaceTypeChip(data) }}
-                  sx={{ bgcolor: "#7dd3fc", fontSize: "large" }}
-                />
-              ) : (
-                <Chip
-                  key={data.key}
-                  label={formatChipLabel(data.label)}
-                  onClick={() => { addSelectedPlaceTypeChip(data) }}
-                  sx={{ fontSize: "large" }}
-                />
-              )
-            )
-          }
+          <p>Loading filters...</p>
         </div>
-
-        <h2 className="text-[32px]">Rating</h2>
-        <div className="lg:w-[50%] max-md:w-[80%] mt-5 ml-5">
-          <Slider
-            value={rating}
-            onChange={(_, newRating: number[]) => { setRating(newRating) }}
-            min={1}
-            max={5}
-            marks={[{ value: 1, label: "1 Star" }, { value: 2, label: "2 Stars" }, { value: 3, label: "3 Stars" }, { value: 4, label: "4 Stars" }, { value: 5, label: "5 Stars" }]}
-          />
-        </div>
-
-        <h2 className="text-[32px]">Opening Hours (24hr format)</h2>
-        <div className="max-md:hidden w-[75%] mt-5 ml-5">
-          <Slider
-            value={openingHours}
-            onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
-            min={0}
-            max={23}
-            valueLabelDisplay="auto"
-            marks={openingHourMarks}
-          />
-        </div>
-
-        <div className="lg:hidden w-[75%] mt-5 ml-5">
-          <Slider
-            value={openingHours}
-            onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
-            min={0}
-            max={23}
-            valueLabelDisplay="auto"
-          />
-        </div>
-
-        <h2 className="text-[32px]">Amenities</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {
-            amenityChipData.map((data: ChipData) =>
-              data.selected ? (
-                <Chip
-                  key={data.key}
-                  label={data.label}
-                  onDelete={() => { removeSelectedAmenityChip(data) }}
-                  sx={{ bgcolor: "#7dd3fc", fontSize: "large" }}
-                />
-              ) : (
-                <Chip
-                  key={data.key}
-                  label={data.label}
-                  onClick={() => { addSelectedAmenityChip(data) }}
-                  sx={{ fontSize: "large" }}
-                />
-              )
-            )
-          }
-        </div>
-
-        <div className="flex justify-end mt-15">
-          <button className="bg-sky-200 text-[32px] px-20 py-5" onClick={submitFilters}>
-            Apply
+      ) : (
+        <dialog
+          ref={dialogRef}
+          closedby="any"
+          className="absolute w-[90vw] h-[90vh] bg-mauve-200 p-5 lg:left-15 lg:right-15 max-md:left-5 max-md:right-5 top-5 lg:bottom-5 backdrop:backdrop-blur-sm"
+        >
+          <h1 className="text-[64px] font-bold max-md:text-[50px]">Other Filters</h1>
+          <button className="absolute top-10 right-10 p-3 rounded-full" onClick={() => dialogRef.current?.close()}>
+            <Image
+              src="/icons/close.png"
+              alt="Close other filters"
+              width={50}
+              height={50}
+            />
           </button>
-        </div>
-      </dialog>
+
+          <h2 className="text-[32px]">Restaurant Type</h2>
+          <div className="grid lg:grid-cols-5 sm:grid-cols-2 gap-3 capitalize">
+            {
+              placeChipData.map((data: ChipData) =>
+                data.selected ? (
+                  <Chip
+                    key={data.key}
+                    label={formatChipLabel(data.label)}
+                    onDelete={() => { removeSelectedPlaceTypeChip(data) }}
+                    sx={{ bgcolor: "#7dd3fc", fontSize: "large" }}
+                  />
+                ) : (
+                  <Chip
+                    key={data.key}
+                    label={formatChipLabel(data.label)}
+                    onClick={() => { addSelectedPlaceTypeChip(data) }}
+                    sx={{ fontSize: "large" }}
+                  />
+                )
+              )
+            }
+          </div>
+
+          <h2 className="text-[32px]">Rating</h2>
+          <div className="lg:w-[50%] max-md:w-[80%] mt-5 ml-5">
+            <Slider
+              value={rating}
+              onChange={(_, newRating: number[]) => { setRating(newRating) }}
+              min={1}
+              max={5}
+              marks={[{ value: 1, label: "1 Star" }, { value: 2, label: "2 Stars" }, { value: 3, label: "3 Stars" }, { value: 4, label: "4 Stars" }, { value: 5, label: "5 Stars" }]}
+            />
+          </div>
+
+          <h2 className="text-[32px]">Opening Hours (24hr format)</h2>
+          <div className="max-md:hidden w-[75%] mt-5 ml-5">
+            <Slider
+              value={openingHours}
+              onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
+              min={0}
+              max={23}
+              valueLabelDisplay="auto"
+              marks={openingHourMarks}
+            />
+          </div>
+
+          <div className="lg:hidden w-[75%] mt-5 ml-5">
+            <Slider
+              value={openingHours}
+              onChange={(_, newOpeningHours: number[]) => { setOpeningHours(newOpeningHours) }}
+              min={0}
+              max={23}
+              valueLabelDisplay="auto"
+            />
+          </div>
+
+          <h2 className="text-[32px]">Amenities</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {
+              amenityChipData.map((data: ChipData) =>
+                data.selected ? (
+                  <Chip
+                    key={data.key}
+                    label={data.label}
+                    onDelete={() => { removeSelectedAmenityChip(data) }}
+                    sx={{ bgcolor: "#7dd3fc", fontSize: "large" }}
+                  />
+                ) : (
+                  <Chip
+                    key={data.key}
+                    label={data.label}
+                    onClick={() => { addSelectedAmenityChip(data) }}
+                    sx={{ fontSize: "large" }}
+                  />
+                )
+              )
+            }
+          </div>
+
+          <div className="flex justify-end mt-15">
+            <button className="bg-sky-200 text-[32px] px-20 py-5" onClick={submitFilters}>
+              Apply
+            </button>
+          </div>
+        </dialog>
+      )}
     </>
   );
 
