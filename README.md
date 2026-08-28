@@ -37,7 +37,10 @@ This app helps the user find their next favorite restaurant near them.
 - Users can configure their preferences from the settings page, such as their preferred restaurant type (acai shop, noodle shop, deli, etc.), rating (1 to 5 stars), opening hours, price level (low, medium, expensive, and very expensive), and amenities (accepts card, accessible, delivers, etc.).
 
 ## How to Run
-1. Visit this URL: https://restaurant-finder-app-alpha.vercel.app/
+1. Download or clone this repository.
+2. Run `npm install` in a terminal at the project directory.
+3. Run `npm run dev`.
+4. Visit http://localhost:3000/.
 
 ## Credits
 - [MUI](https://mui.com/) for pre-built components like sliders and chips
