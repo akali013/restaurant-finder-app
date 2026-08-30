@@ -138,7 +138,9 @@ export async function unsaveRestaurant(placeId: string) {
 }
 
 // Inserts only new restaurants into the db so they can be referenced by the FavoriteRestaurants table
-export async function insertRestaurant(place: GooglePlace) {
+export async function insertRestaurant(place?: GooglePlace) {
+  if (place === undefined) return;
+
   try {
     await sql`
       INSERT INTO Restaurants (restaurantId, name, address, phoneNumber)
