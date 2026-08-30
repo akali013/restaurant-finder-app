@@ -1,5 +1,5 @@
 import { insertRestaurant } from "@/app/lib/actions";
-import { MapsAPIResponse, GooglePlace } from "@/app/lib/data";
+import { MapsAPIResponse, GooglePlace, processAPIPlaces } from "@/app/lib/data";
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -48,15 +48,7 @@ export async function GET(req: NextRequest) {
   }
 
   const placesJSON = await response.json() as MapsAPIResponse;
+  let googlePlaces = await processAPIPlaces(placesJSON.places);
 
-  if (placesJSON.places) {
-    // Update the database with any new restaurants that haven't been retrieved yet  
-    await Promise.all(
-      placesJSON.places.map((place: GooglePlace) => {
-        insertRestaurant(place);
-      })
-    );
-  }
-
-  return NextResponse.json(placesJSON);
+  return NextResponse.json({ places: googlePlaces });
 }

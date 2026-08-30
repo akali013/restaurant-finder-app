@@ -18,7 +18,9 @@ export function getFormattedPrice(place: GooglePlace): string {
 
 // Resolves the Google Maps API place types with more readable names
 // Ex: bar_and_grill -> Bar And Grill
-export function getFormattedType(place: GooglePlace): string {
+export function getFormattedType(place?: GooglePlace): string {
+  if (place === undefined) return "No Name Available";
+
   const formattedType = place.primaryType.replaceAll("_", " ");
   return formattedType;
 }

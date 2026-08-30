@@ -1,4 +1,5 @@
 import { getPlaceDetails } from "../api/placeDetails/route";
+import { getPlaceTypes, insertRestaurant } from "./actions";
 
 // All the database and API types are defined here
 export type User = {
@@ -183,4 +184,25 @@ export async function getSavedRestaurants(savedRestaurantIds: string[]) {
   );
 
   return { places: placeDetails };
+}
+
+// Process each Google Place from the Maps API to ensure it is a restaurant
+export async function processAPIPlaces(places: GooglePlace[]): Promise<GooglePlace[]> {
+  let googlePlaces = places.slice();
+
+  if (!!googlePlaces) {
+    const placeTypes = (await getPlaceTypes()).map(type => type.name);
+    // Update the database with any new restaurants that haven't been retrieved yet 
+    // also filter out any places that aren't food-related 
+    await Promise.all(
+      googlePlaces = googlePlaces.filter((place: GooglePlace) => {
+        if (placeTypes.includes(place.primaryType)) {
+          insertRestaurant(place);
+          return place;
+        }
+      })
+    );
+  }
+
+  return googlePlaces;
 }
